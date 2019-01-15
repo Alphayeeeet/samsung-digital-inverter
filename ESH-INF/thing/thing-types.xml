@@ -1,0 +1,140 @@
+<thing:thing-descriptions bindingId="samsungdigitalinverter"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+	xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+
+	<!--Samsung Digital Inverter Thing -->
+	<thing-type id="sdi">
+		<label>Samsung Digital Inverter</label>
+		<description>
+		Controls a Samsung Digital Inverter
+		In order to comunicate with the Samsung Digital Inverter you must obtain a unique Token for your device.
+		</description>
+
+		<channels>
+			<channel id="power" typeId="power" />
+			<channel id="setpoint_temperature" typeId="setpoint_temperature" />
+			<channel id="temperature" typeId="temperature" />
+			<channel id="winddirection" typeId="winddirection" />
+			<channel id="windspeed" typeId="windspeed" />
+			<channel id="operation_mode" typeId="operation_mode" />
+			<channel id="alarm" typeId="alarm" />
+		</channels>
+
+		<config-description>
+			<parameter name="bearer" type="text" required="false">
+				<context>password</context>
+				<label>Token</label>
+				<description>Data token to access the Samsung Digital Inverter</description>
+				<default>1eD8FjsyC5</default>
+			</parameter>
+			<parameter name="ip" type="text" required="true">
+				<label>IP-Address</label>
+				<description>IP Address</description>
+				<context>network-address</context>
+				<default>192.168.1.145</default>
+			</parameter>
+			<parameter name="port" type="integer" required="true">
+				<label>Port Number</label>
+				<description>Fill in port number (8888)</description>
+				<default>8888</default>
+			</parameter>
+			<parameter name="refresh" type="integer" min="30" required="false">
+				<label>Refresh interval</label>
+				<description>Specifies the refresh interval in seconds.</description>
+				<default>60</default>
+			</parameter>
+			<parameter name="keystore" type="text" required="true">
+				<label>Keystore</label>
+				<description>Path to Keystore File</description>
+				<default>/Users/jan/cert/samsung.pkcs12</default>
+			</parameter>
+			<parameter name="keystore_secret" type="text">
+				<label>Keystore Password</label>
+				<context>password</context>
+				<default>secret</default>
+			</parameter>
+		</config-description>
+	</thing-type>
+
+	<channel-type id="power">
+		<item-type>Switch</item-type>
+		<label>Power On/Off</label>
+		<description>Switch Device On/Off</description>
+		<category>power</category>
+	</channel-type>
+
+	<channel-type id="setpoint_temperature">
+		<item-type>Number:Temperature</item-type>
+		<label>Set Temperature</label>
+		<description>Set Desired Temperature</description>
+		<category>Temperature</category>
+		<tags>
+			<tag>TargetTemperature</tag>
+		</tags>
+		<state pattern="%.1f %unit%" min="8.0" max="30.0" step="1.0" readOnly="false"></state>
+	</channel-type>
+
+	<channel-type id="temperature">
+		<item-type>Number:Temperature</item-type>
+		<label>Temperature</label>
+		<description>Current Temperature measured by the device</description>
+		<category>Temperature</category>
+		<tags>
+			<tag>CurrentTemperature</tag>
+		</tags>
+		<state readOnly="true" pattern="%.1f %unit%" />
+	</channel-type>
+
+	<channel-type id="winddirection">
+		<item-type>String</item-type>
+		<label>Wind Direction</label>
+		<description>Change Wind Direction</description>
+		<state>
+			<options>
+				<option value="All">Automatic</option>
+				<option value="Up_And_Low">Up and Down</option>
+				<option value="Left_And_Right">Left and Right</option>
+				<option value="Fix">Fixed</option>
+			</options>
+		</state>
+	</channel-type>
+
+	<channel-type id="windspeed">
+		<item-type>String</item-type>
+		<label>Wind Speed</label>
+		<description>Set Wind Speed</description>
+		<category>windspeed</category>
+		<state>
+			<options>
+				<option value="0">Auto</option>
+				<option value="1">Low</option>
+				<option value="2">Medium</option>
+				<option value="3">High</option>
+				<option value="4">Turbo</option>
+			</options>
+		</state>
+	</channel-type>
+
+	<channel-type id="operation_mode">
+		<item-type>String</item-type>
+		<label>Operating Mode</label>
+		<state>
+			<options>
+				<option value="Heat">Heat</option>
+				<option value="Cool">Cool</option>
+				<option value="Dry">Dry</option>
+				<option value="Wind">Wind</option>
+				<option value="Cool">Cool</option>
+			</options>
+		</state>
+	</channel-type>
+
+	<channel-type id="alarm">
+		<item-type>String</item-type>
+		<label>Alarm</label>
+	</channel-type>
+
+
+</thing:thing-descriptions>
+

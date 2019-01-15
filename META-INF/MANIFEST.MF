@@ -1,0 +1,43 @@
+Manifest-Version: 1.0
+Automatic-Module-Name: org.openhab.binding.samsungdigitalinverter
+Bundle-ActivationPolicy: lazy
+Bundle-ClassPath: .
+Bundle-ManifestVersion: 2
+Bundle-Name: AirQuality Binding
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-SymbolicName: org.openhab.binding.samsungdigitalinverter;singleton:=true
+Bundle-Vendor: openHAB
+Bundle-Version: 2.5.0.qualifier
+Export-Package: 
+ org.openhab.binding.samsungdigitalinverter,
+ org.openhab.binding.samsungdigitalinverter.handler,
+ org.openhab.binding.samsungdigitalinverter.json
+Import-Package: 
+ com.google.gson,
+ com.google.gson.annotations,
+ javax.measure,
+ javax.measure.quantity,
+ org.apache.commons.io,
+ org.apache.commons.lang,
+ org.eclipse.jdt.annotation;resolution:=optional,
+ org.eclipse.jetty.client;version="9.4.11",
+ org.eclipse.jetty.http;version="9.4.11",
+ org.eclipse.jetty.util.component;version="9.4.11",
+ org.eclipse.jetty.util.ssl;version="9.4.11",
+ org.eclipse.smarthome.config.core,
+ org.eclipse.smarthome.config.discovery,
+ org.eclipse.smarthome.core.i18n,
+ org.eclipse.smarthome.core.library.types,
+ org.eclipse.smarthome.core.library.unit,
+ org.eclipse.smarthome.core.thing,
+ org.eclipse.smarthome.core.thing.binding,
+ org.eclipse.smarthome.core.thing.binding.builder,
+ org.eclipse.smarthome.core.thing.type,
+ org.eclipse.smarthome.core.types,
+ org.openhab.binding.samsungdigitalinverter,
+ org.openhab.binding.samsungdigitalinverter.handler,
+ org.openhab.binding.samsungdigitalinverter.json,
+ org.slf4j
+Service-Component: OSGI-INF/*.xml
+Require-Bundle: org.eclipse.jetty.client,
+ org.eclipse.smarthome.io.net
