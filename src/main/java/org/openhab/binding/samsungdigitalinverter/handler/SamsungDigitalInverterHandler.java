@@ -34,7 +34,6 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
 import org.apache.commons.lang.StringUtils;
-import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.library.types.DateTimeType;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.PointType;
@@ -175,16 +174,28 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
             JsonCommand sdiCommand = null;
             switch (channel) {
                 case SamsungDigitalInverterConstants.SETPOINT_TEMPERATURE:
-                    sdiCommand = createDesiredTemperature(command);
+                    sdiCommand = SamsungDigitalInverterCommands.createDesiredTemperatureCommand(command);
                     break;
                 case SamsungDigitalInverterConstants.POWER:
-                    logger.debug("Power {} The Samsung Digital Inverter", command);
-                    sdiCommand = createPowerCommand(command);
-                    logger.debug("Power {} The Samsung Digital Inverter", sdiCommand);
+                    sdiCommand = SamsungDigitalInverterCommands.createPowerCommand(command);
                     break;
+                case SamsungDigitalInverterConstants.WIND_DIRECTION:
+                    sdiCommand = SamsungDigitalInverterCommands.createWindDirectionCommand(command);
+                    break;
+                case SamsungDigitalInverterConstants.WIND_SPEED:
+                    sdiCommand = SamsungDigitalInverterCommands.createDesiredWindSpeedCommand(command);
+                    break;
+                case SamsungDigitalInverterConstants.OPERATING_MODE:
+                    sdiCommand = SamsungDigitalInverterCommands.createSetOperatingModeCommand(command);
+                    break;
+                case SamsungDigitalInverterConstants.COMODE:
+                    sdiCommand = SamsungDigitalInverterCommands.createSetComodeCommand(command);
+                    break;
+
             }
             if (sdiCommand != null) {
                 try {
+                    logger.debug("To execute command: {} {}", sdiCommand.getPath(), sdiCommand.getJson());
                     updateService(sdiCommand);
                 } catch (IOException e) {
                     logger.error(e.getMessage());
@@ -218,29 +229,6 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
         int httpResult = con.getResponseCode();
         logger.debug("updateService {} with {} returned {}", sdiCommand.getPath(), sdiCommand.getJson(), httpResult);
 
-    }
-
-    private JsonCommand createPowerCommand(@NonNull Command command) {
-        JsonCommand json = new JsonCommand();
-        String state = "";
-        switch (command.toString()) {
-            case "OFF":
-                state = "Off";
-                break;
-            case "ON":
-                state = "On";
-                break;
-        }
-        json.setPath("/devices/0");
-        json.setJson(String.format("{\"Operation\": {\"power\": \"%s\"}}", state));
-        return json;
-    }
-
-    private JsonCommand createDesiredTemperature(@NonNull Command command) {
-        JsonCommand json = new JsonCommand();
-        json.setPath("/devices/0/temperatures/0");
-        json.setJson(String.format("{\"desired\": %s}", command.toString().split(" ")[0]));
-        return json;
     }
 
     private void updateChannel(String channelId, SamsungDigitalInverterJsonResponse aqiResponse) {
@@ -331,13 +319,16 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
                             ? SamsungDigitalInverterConstants.POWER_ON
                             : SamsungDigitalInverterConstants.POWER_OFF;
                 case SamsungDigitalInverterConstants.WIND_SPEED:
-                    return data.getDevices().get(0).getWind().getSpeedLevel();
+                    return data.getDevices().get(0).getWind().getSpeedLevel().toString();
                 case SamsungDigitalInverterConstants.WIND_DIRECTION:
                     return data.getDevices().get(0).getWind().getDirection();
                 case SamsungDigitalInverterConstants.ALARM:
                     return data.getDevices().get(0).getAlarms().get(0).getCode();
                 case SamsungDigitalInverterConstants.OPERATING_MODE:
                     return data.getDevices().get(0).getMode().getModes().get(0);
+                case SamsungDigitalInverterConstants.OPTIONS:
+                    Object value = data.getDevices().get(0).getMode().getOptions();
+                    return value;
 
             }
         } else {
@@ -393,7 +384,7 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
     private HttpsURLConnection openConnection(URL url) throws IOException {
         HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
         con.addRequestProperty("Content-Type", "application/json");
-        con.addRequestProperty("Authorization", "Bearer 1eD8FjsyC5");
+        con.addRequestProperty("Authorization", "Bearer " + config.bearer);
         return (con);
     }
 
