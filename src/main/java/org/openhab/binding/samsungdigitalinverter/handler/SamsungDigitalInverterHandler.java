@@ -185,6 +185,9 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
                 case SamsungDigitalInverterConstants.WIND_SPEED:
                     sdiCommand = SamsungDigitalInverterCommands.createDesiredWindSpeedCommand(command);
                     break;
+                case SamsungDigitalInverterConstants.MAX_WIND_SPEED:
+                    sdiCommand = SamsungDigitalInverterCommands.createMaxWindSpeedCommand(command);
+                    break;
                 case SamsungDigitalInverterConstants.OPERATING_MODE:
                     sdiCommand = SamsungDigitalInverterCommands.createSetOperatingModeCommand(command);
                     break;

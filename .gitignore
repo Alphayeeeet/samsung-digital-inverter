@@ -1,1 +1,1 @@
-*.class
+target/classes/org/openhab/binding/*.class

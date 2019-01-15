@@ -39,6 +39,7 @@ public class SamsungDigitalInverterConstants {
     public static final String POWER = "power";
     public static final String WIND_DIRECTION = "winddirection";
     public static final String WIND_SPEED = "windspeed";
+    public static final String MAX_WIND_SPEED = "max_windspeed";
     public static final String OPERATING_MODE = "operation_mode";
     public static final String ALARM = "alarm";
     public static final String COMODE = "comode";
@@ -47,7 +48,7 @@ public class SamsungDigitalInverterConstants {
 
     public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Collections.singleton(THING_TYPE_SDI);
     public static final Set<String> SUPPORTED_CHANNEL_IDS = Stream.of(SETPOINT_TEMPERATURE, TEMPERATURE_CURRENT, POWER,
-            WIND_DIRECTION, WIND_SPEED, OPERATING_MODE, ALARM, COMODE).collect(Collectors.toSet());
+            WIND_DIRECTION, WIND_SPEED, OPERATING_MODE, ALARM, MAX_WIND_SPEED, COMODE).collect(Collectors.toSet());
 
     // Units of measurement of the data delivered by the API
     public static final Unit<Temperature> SDI_TEMPERATURE_UNIT = SIUnits.CELSIUS;
