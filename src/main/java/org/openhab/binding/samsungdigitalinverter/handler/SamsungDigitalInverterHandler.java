@@ -6,6 +6,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
+
 package org.openhab.binding.samsungdigitalinverter.handler;
 
 import java.io.BufferedReader;
@@ -62,10 +63,12 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.Gson;
 
 /**
- * The {@link SamsungDigitalInverterHandler} is responsible for handling commands, which are
- * sent to one of the channels.
  *
+ * The {@link SamsungDigitalInverterHandler} class is the core class for the Samsung Digital Inverter
+ *
+ * @author Jan Grønlien - Initial contribution
  */
+
 public class SamsungDigitalInverterHandler extends BaseThingHandler {
 
     private Logger logger = LoggerFactory.getLogger(SamsungDigitalInverterHandler.class);
@@ -109,9 +112,8 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
         String errorMsg = null;
 
         try {
-            config.keystore_password = "secret";
             allHostsValid = createrHostnameVerifier();
-            keyManagers = createKeyManagers(config.keystore, config.keystore_password);
+            keyManagers = createKeyManagers(config.keystore, config.keystore_secret);
             trustManagers = createTrustAll();
 
             sslContext = SSLContext.getInstance("SSL");

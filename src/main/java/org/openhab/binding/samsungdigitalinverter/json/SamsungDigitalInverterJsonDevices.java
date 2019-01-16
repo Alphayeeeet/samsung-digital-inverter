@@ -6,16 +6,18 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
+
 package org.openhab.binding.samsungdigitalinverter.json;
 
 import java.util.List;
 
 /**
- * The {@link SamsungDigitalInverterJsonDevices} is responsible for storing
- * the "data" node from the waqi.org JSON response
  *
- * @author Kuba Wolanin - Initial contribution
+ * The {@link SamsungDigitalInverterJsonDevices} class defines the Alarm Structure Samsung Digital Inverter
+ *
+ * @author Jan Grønlien - Initial contribution
  */
+
 public class SamsungDigitalInverterJsonDevices {
     private String uuid;
     private String id;

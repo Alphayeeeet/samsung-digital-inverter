@@ -1,19 +1,21 @@
 /**
- * Copyright (c) 2010-2019 by the respective copyright holders.
+ * Copyright (c) 2010-2018 by the respective copyright holders.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
+
 package org.openhab.binding.samsungdigitalinverter.internal;
 
 /**
- * The {@link SamsungDigitalInverterConfiguration} is the class used to match the
- * thing configuration.
+ *
+ * The {@link SamsungDigitalInverterConfiguration} class is the configuration class for the Samsung Digital Inverter
  *
  * @author Jan Grønlien - Initial contribution
  */
+
 public class SamsungDigitalInverterConfiguration {
     // Access token used as key to control Device
     public String bearer;
@@ -31,5 +33,5 @@ public class SamsungDigitalInverterConfiguration {
     public String keystore;
 
     // keystore password
-    public String keystore_password;
+    public String keystore_secret;
 }

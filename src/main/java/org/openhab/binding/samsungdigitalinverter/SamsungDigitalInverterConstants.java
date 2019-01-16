@@ -6,6 +6,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
+
 package org.openhab.binding.samsungdigitalinverter;
 
 import java.util.Collections;
@@ -21,6 +22,13 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.core.library.unit.SIUnits;
 import org.eclipse.smarthome.core.library.unit.SmartHomeUnits;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
+
+/**
+ *
+ * The {@link SamsungDigitalInverterConstants} class defines common constants
+ *
+ * @author Jan Grønlien - Initial contribution
+ */
 
 @NonNullByDefault
 public class SamsungDigitalInverterConstants {

@@ -6,6 +6,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
+
 package org.openhab.binding.samsungdigitalinverter.internal;
 
 import java.util.Collections;
@@ -21,11 +22,12 @@ import org.openhab.binding.samsungdigitalinverter.handler.SamsungDigitalInverter
 import org.osgi.service.component.annotations.Component;
 
 /**
- * The {@link SamsungDigitalInverterHandlerFactory} is responsible for creating things and thing
- * handlers.
+ *
+ * The {@link SamsungDigitalInverterHandlerFactory} class is the factory class for the Samsung Digital Inverter
  *
  * @author Jan Grønlien - Initial contribution
  */
+
 @Component(service = ThingHandlerFactory.class, configurationPid = "binding.SamsungDigitalInverter")
 public class SamsungDigitalInverterHandlerFactory extends BaseThingHandlerFactory {
 
