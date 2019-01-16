@@ -65,8 +65,6 @@ import com.google.gson.Gson;
  * The {@link SamsungDigitalInverterHandler} is responsible for handling commands, which are
  * sent to one of the channels.
  *
- * @author Kuba Wolanin - Initial contribution
- * @author Łukasz Dywicki - Initial contribution
  */
 public class SamsungDigitalInverterHandler extends BaseThingHandler {
 
@@ -136,16 +134,16 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
     }
 
     /**
-     * Start the job refreshing the Air Quality data
+     * Start the job refreshing the Samsung Digial Inverter data
      */
     private void startAutomaticRefresh() {
         if (refreshJob == null || refreshJob.isCancelled()) {
             Runnable runnable = () -> {
                 try {
-                    // Request new air quality data to the aqicn.org service
+                    // Call Samsung Digital Inverter to get data
                     sdiResponse = getSamsungDigitalInverterData();
 
-                    // Update all channels from the updated AQI data
+                    // Update all channels
                     for (Channel channel : getThing().getChannels()) {
                         updateChannel(channel.getUID().getId(), sdiResponse);
                     }
@@ -274,11 +272,9 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
     }
 
     /**
-     * Request new air quality data to the aqicn.org service
+     * Make Call to Samsung Digital Inverter
      *
-     * @param location  geo-coordinates from config
-     * @param stationId station ID from config
-     * @return the air quality data object mapping the JSON response or null in case of error
+     * Data is returned as json
      */
     private SamsungDigitalInverterJsonResponse getSamsungDigitalInverterData() {
         SamsungDigitalInverterJsonResponse result = null;
