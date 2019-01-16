@@ -4,6 +4,7 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.types.Command;
 
 public class SamsungDigitalInverterCommands {
+
     public static JsonCommand createPowerCommand(@NonNull Command command) {
         JsonCommand json = new JsonCommand();
         String state = "";
@@ -58,7 +59,18 @@ public class SamsungDigitalInverterCommands {
     public static JsonCommand createSetComodeCommand(@NonNull Command command) {
         JsonCommand json = new JsonCommand();
         json.setPath("/devices/0/mode");
-        json.setJson(String.format("{\"options:\"[\"%s\"]}", command.toString()));
+        json.setJson(String.format("{\"options\":[\"%s\"]}", command.toString()));
+        return json;
+    }
+
+    public static JsonCommand createSetAutoCleanCommand(@NonNull Command command) {
+        JsonCommand json = new JsonCommand();
+        json.setPath("/devices/0/mode");
+        if ("ON".equals(command.toString())) {
+            json.setJson("{\"options\":[\"Autoclean_On\"]}");
+        } else {
+            json.setJson("{\"options\":[\"Autoclean_Off\"]}");
+        }
         return json;
     }
 }

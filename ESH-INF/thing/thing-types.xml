@@ -10,16 +10,19 @@
 		Controls a Samsung Digital Inverter
 		In order to comunicate with the Samsung Digital Inverter you must obtain a unique Token for your device.
 		</description>
+		<category>HVAC</category>
 
 		<channels>
 			<channel id="power" typeId="power" />
+			<channel id="autoclean" typeId="autoclean" />
 			<channel id="setpoint_temperature" typeId="setpoint_temperature" />
 			<channel id="temperature" typeId="temperature" />
 			<channel id="winddirection" typeId="winddirection" />
 			<channel id="windspeed" typeId="windspeed" />
-			<channel id="max_windspeed" typeId="max_windspeed"></channel>
 			<channel id="operation_mode" typeId="operation_mode" />
 			<channel id="comode" typeId="comode" />
+			<channel id="filtertime" typeId="filtertime" />
+			<channel id="filteralarmtime" typeId="filteralarmtime" />
 			<channel id="alarm" typeId="alarm" />
 		</channels>
 
@@ -32,16 +35,23 @@
 		<description>Switch Device On/Off</description>
 		<category>power</category>
 	</channel-type>
+	
+	<channel-type id="autoclean">
+        <item-type>Switch</item-type>
+        <label>Autoclean On/Off</label>
+        <description>Enable or Diable Autoclean</description>
+        <category>Switch</category>
+    </channel-type>
 
 	<channel-type id="setpoint_temperature">
 		<item-type>Number:Temperature</item-type>
 		<label>Set Temperature</label>
 		<description>Set Desired Temperature</description>
-		<category>Temperature</category>
+		<category>Heating</category>
 		<tags>
 			<tag>TargetTemperature</tag>
 		</tags>
-		<state pattern="%.1f %unit%" min="8.0" max="30.0" step="1.0" readOnly="false"></state>
+		<state pattern="%.0f %unit%" min="8.0" max="30.0" step="1.0" readOnly="false"></state>
 	</channel-type>
 
 	<channel-type id="temperature">
@@ -52,7 +62,7 @@
 		<tags>
 			<tag>CurrentTemperature</tag>
 		</tags>
-		<state readOnly="true" pattern="%.1f %unit%" />
+		<state readOnly="true" pattern="%.0f %unit%" />
 	</channel-type>
 
 	<channel-type id="winddirection">
@@ -77,21 +87,6 @@
 		<state>
 			<options>
 				<option value="0">Auto</option>
-				<option value="1">Low</option>
-				<option value="2">Medium</option>
-				<option value="3">High</option>
-				<option value="4">Turbo</option>
-			</options>
-		</state>
-	</channel-type>
-
-	<channel-type id="max_windspeed">
-		<item-type>String</item-type>
-		<label>Wind Speed</label>
-		<description>Set Maximum Wind Speed</description>
-		<category>windspeed</category>
-		<state>
-			<options>
 				<option value="1">Low</option>
 				<option value="2">Medium</option>
 				<option value="3">High</option>
@@ -129,10 +124,25 @@
 			</options>
 		</state>
 	</channel-type>
+	
+	<channel-type id="filtertime">
+        <item-type>Number</item-type>
+        <label>Run time since last cleaning</label>
+        <description>Hours since filter was cleaned</description>
+        <state readOnly="true" pattern="%.1f %unit%" />
+    </channel-type>
+    
+    <channel-type id="filteralarmtime">
+        <item-type>Number</item-type>
+        <label>Interval Time for Filter Cleaning</label>
+        <description>Cleaning interval for filter</description>
+        <state readOnly="true" pattern="%.0f %unit%" />
+    </channel-type>
 
 	<channel-type id="alarm">
 		<item-type>String</item-type>
 		<label>Alarm</label>
+		<category>Alarm</category>
 	</channel-type>
 
 

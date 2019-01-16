@@ -19,6 +19,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.time.ZonedDateTime;
 import java.util.concurrent.ScheduledFuture;
@@ -126,6 +130,7 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
             updateStatus(ThingStatus.ONLINE);
             startAutomaticRefresh();
         } else {
+            logger.equals(errorMsg);
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, errorMsg);
         }
     }
@@ -194,8 +199,11 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
                 case SamsungDigitalInverterConstants.COMODE:
                     sdiCommand = SamsungDigitalInverterCommands.createSetComodeCommand(command);
                     break;
-
+                case SamsungDigitalInverterConstants.AUTOCLEAN:
+                    sdiCommand = SamsungDigitalInverterCommands.createSetAutoCleanCommand(command);
+                    break;
             }
+            logger.debug("The Samsung Digital Inverter handle command {} -> {}", channelUID, command);
             if (sdiCommand != null) {
                 try {
                     logger.debug("To execute command: {} {}", sdiCommand.getPath(), sdiCommand.getJson());
@@ -204,16 +212,6 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
                     logger.error(e.getMessage());
                 }
             }
-            // Delegate command to correct service
-            // for (SamsungDigitalInverterService service : services) {
-            // for (String s : service.getSupportedChannelNames()) {
-            // if (channel.equals(s)) {
-            // service.handleCommand(channel, command);
-            // return;
-            // }
-            // }
-            // }
-            logger.debug("The Samsung Digital Inverter handle command {} -> {}", channelUID, command);
         }
     }
 
@@ -259,6 +257,8 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
                 state = new DecimalType(BigDecimal.valueOf(((Integer) value).longValue()));
             } else if (value instanceof String) {
                 state = new StringType(value.toString());
+            } else if (value instanceof Float) {
+                state = new DecimalType((Float) value);
             } else {
                 logger.warn("Update channel {}: Unsupported value type {}", channelId,
                         value.getClass().getSimpleName());
@@ -303,13 +303,15 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
                 logger.warn("Invalid response: {}", errorMsg);
             }
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            logger.error("{}", e.getMessage());
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, e.getMessage());
         }
         return (result);
     }
 
     public static Object getValue(String channelId, SamsungDigitalInverterJsonResponse data) throws Exception {
         String[] fields = StringUtils.split(channelId, "#");
+        Object value;
 
         if (data != null) {
             switch (fields[0]) {
@@ -319,23 +321,45 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
                     return data.getDevices().get(0).getTemperatures().get(0).getDesired();
                 case SamsungDigitalInverterConstants.POWER:
                     return "On".equals(data.getDevices().get(0).getOperation().getPower())
-                            ? SamsungDigitalInverterConstants.POWER_ON
-                            : SamsungDigitalInverterConstants.POWER_OFF;
+                            ? SamsungDigitalInverterConstants.ON
+                            : SamsungDigitalInverterConstants.OFF;
                 case SamsungDigitalInverterConstants.WIND_SPEED:
                     return data.getDevices().get(0).getWind().getSpeedLevel().toString();
+                case SamsungDigitalInverterConstants.MAX_WIND_SPEED:
+                    return data.getDevices().get(0).getWind().getMaxSpeedLevel().toString();
                 case SamsungDigitalInverterConstants.WIND_DIRECTION:
                     return data.getDevices().get(0).getWind().getDirection();
                 case SamsungDigitalInverterConstants.ALARM:
-                    return data.getDevices().get(0).getAlarms().get(0).getCode();
+                    value = data.getDevices().get(0).getAlarms().get(0).getCode();
+                    if ("FilterAlarm_OFF".equals(value)) {
+                        value = "";
+                    } else if ("FilterAlarm".equals(value)) {
+                        value = "Please Clean Filter";
+                    }
+                    return value;
                 case SamsungDigitalInverterConstants.OPERATING_MODE:
                     return data.getDevices().get(0).getMode().getModes().get(0);
                 case SamsungDigitalInverterConstants.OPTIONS:
-                    Object value = data.getDevices().get(0).getMode().getOptions();
+                    value = data.getDevices().get(0).getMode().getOptions();
                     return value;
-
+                case SamsungDigitalInverterConstants.COMODE:
+                    value = data.getDevices().get(0).getMode().getOptions().get(0);
+                    return value;
+                case SamsungDigitalInverterConstants.FILTER_ALARMTIME:
+                    value = data.getDevices().get(0).getMode().getOptions().get(11).substring(16);
+                    value = new BigDecimal((String) value);
+                    return value;
+                case SamsungDigitalInverterConstants.FILTERTIME:
+                    value = data.getDevices().get(0).getMode().getOptions().get(8).substring(11);
+                    value = Float.valueOf((Float.valueOf((String) value) / 10));
+                    return value;
+                case SamsungDigitalInverterConstants.AUTOCLEAN:
+                    return "Autoclean_On".equals(data.getDevices().get(0).getMode().getOptions().get(2))
+                            ? SamsungDigitalInverterConstants.ON
+                            : SamsungDigitalInverterConstants.OFF;
             }
         } else {
-            throw new NullPointerException();
+            throw new NullPointerException("data can't be null for channelID=" + channelId);
         }
 
         return null;
@@ -361,7 +385,9 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
 
     }
 
-    private KeyManager[] createKeyManagers(String keystoreFilePath, String keyStorePassword) throws Exception {
+    private KeyManager[] createKeyManagers(String keystoreFilePath, String keyStorePassword) throws KeyStoreException,
+            NoSuchAlgorithmException, CertificateException, IOException, UnrecoverableKeyException {
+
         InputStream keyStoreInput = new FileInputStream(keystoreFilePath);
         KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
         keyStore.load(keyStoreInput, keyStorePassword.toCharArray());
@@ -369,6 +395,7 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
         KeyManagerFactory kmfactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
         kmfactory.init(keyStore, keyStorePassword.toCharArray());
         return kmfactory.getKeyManagers();
+
     }
 
     private HostnameVerifier createrHostnameVerifier() {

@@ -43,19 +43,24 @@ public class SamsungDigitalInverterConstants {
     public static final String OPERATING_MODE = "operation_mode";
     public static final String ALARM = "alarm";
     public static final String COMODE = "comode";
+    public static final String FILTERTIME = "filtertime";
+    public static final String FILTER_ALARMTIME = "filteralarmtime";
+    public static final String AUTOCLEAN = "autoclean";
 
     public static final String OPTIONS = "options";
 
     public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Collections.singleton(THING_TYPE_SDI);
-    public static final Set<String> SUPPORTED_CHANNEL_IDS = Stream.of(SETPOINT_TEMPERATURE, TEMPERATURE_CURRENT, POWER,
-            WIND_DIRECTION, WIND_SPEED, OPERATING_MODE, ALARM, MAX_WIND_SPEED, COMODE).collect(Collectors.toSet());
+    public static final Set<String> SUPPORTED_CHANNEL_IDS = Stream
+            .of(SETPOINT_TEMPERATURE, TEMPERATURE_CURRENT, POWER, WIND_DIRECTION, WIND_SPEED, OPERATING_MODE, ALARM,
+                    MAX_WIND_SPEED, COMODE, FILTERTIME, FILTER_ALARMTIME, AUTOCLEAN)
+            .collect(Collectors.toSet());
 
     // Units of measurement of the data delivered by the API
     public static final Unit<Temperature> SDI_TEMPERATURE_UNIT = SIUnits.CELSIUS;
     public static final Unit<Dimensionless> SDI_HUMIDITY_UNIT = SmartHomeUnits.PERCENT;
 
     // Power Constants
-    public static final Integer POWER_ON = 1;
-    public static final Integer POWER_OFF = 0;
+    public static final Integer ON = 1;
+    public static final Integer OFF = 0;
 
 }

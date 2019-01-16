@@ -3,7 +3,7 @@ Automatic-Module-Name: org.openhab.binding.samsungdigitalinverter
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .
 Bundle-ManifestVersion: 2
-Bundle-Name: AirQuality Binding
+Bundle-Name: Samsung Digital Inverter Binding
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-SymbolicName: org.openhab.binding.samsungdigitalinverter;singleton:=true
 Bundle-Vendor: openHAB
@@ -39,5 +39,4 @@ Import-Package:
  org.openhab.binding.samsungdigitalinverter.json,
  org.slf4j
 Service-Component: OSGI-INF/*.xml
-Require-Bundle: org.eclipse.jetty.client,
- org.eclipse.smarthome.io.net
+Require-Bundle: org.eclipse.smarthome.io.net
