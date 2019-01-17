@@ -54,13 +54,13 @@ public class SamsungDigitalInverterConstants {
     public static final String FILTERTIME = "filtertime";
     public static final String FILTER_ALARMTIME = "filteralarmtime";
     public static final String AUTOCLEAN = "autoclean";
-
     public static final String OPTIONS = "options";
+    public static final String OUTDOOR_TEMPERATURE = "outdoor_temperature";
 
     public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Collections.singleton(THING_TYPE_SDI);
     public static final Set<String> SUPPORTED_CHANNEL_IDS = Stream
             .of(SETPOINT_TEMPERATURE, TEMPERATURE_CURRENT, POWER, WIND_DIRECTION, WIND_SPEED, OPERATING_MODE, ALARM,
-                    MAX_WIND_SPEED, COMODE, FILTERTIME, FILTER_ALARMTIME, AUTOCLEAN)
+                    MAX_WIND_SPEED, COMODE, FILTERTIME, FILTER_ALARMTIME, AUTOCLEAN, OUTDOOR_TEMPERATURE)
             .collect(Collectors.toSet());
 
     // Units of measurement of the data delivered by the API

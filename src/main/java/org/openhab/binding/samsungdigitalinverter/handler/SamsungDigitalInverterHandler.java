@@ -317,6 +317,8 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
                     return data.getDevices().get(0).getTemperatures().get(0).getCurrent();
                 case SamsungDigitalInverterConstants.SETPOINT_TEMPERATURE:
                     return data.getDevices().get(0).getTemperatures().get(0).getDesired();
+                case SamsungDigitalInverterConstants.OUTDOOR_TEMPERATURE:
+                    return new BigDecimal(data.getDevices().get(0).getMode().getOptions().get(4).substring(12));
                 case SamsungDigitalInverterConstants.POWER:
                     return "On".equals(data.getDevices().get(0).getOperation().getPower())
                             ? SamsungDigitalInverterConstants.ON

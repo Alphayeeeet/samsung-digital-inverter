@@ -17,6 +17,7 @@
 			<channel id="autoclean" typeId="autoclean" />
 			<channel id="setpoint_temperature" typeId="setpoint_temperature" />
 			<channel id="temperature" typeId="temperature" />
+			<channel id="outdoor_temperature" typeId="outdoor_temperature" />
 			<channel id="winddirection" typeId="winddirection" />
 			<channel id="windspeed" typeId="windspeed" />
 			<channel id="operation_mode" typeId="operation_mode" />
@@ -64,6 +65,17 @@
 		</tags>
 		<state readOnly="true" pattern="%.0f %unit%" />
 	</channel-type>
+	
+	<channel-type id="outdoor_temperature">
+        <item-type>Number:Temperature</item-type>
+        <label>Outdoor Temperature</label>
+        <description>Outdoor Temperature</description>
+        <category>Temperature</category>
+        <tags>
+            <tag>CurrentTemperature</tag>
+        </tags>
+        <state readOnly="true" pattern="%.0f %unit%" />
+    </channel-type>
 
 	<channel-type id="winddirection">
 		<item-type>String</item-type>
