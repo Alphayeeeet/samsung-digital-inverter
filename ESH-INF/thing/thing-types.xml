@@ -68,7 +68,7 @@
 	
 	<channel-type id="outdoor_temperature">
         <item-type>Number:Temperature</item-type>
-        <label>Outdoor Temperature</label>
+        <label>Outdoor Inverter Temperature</label>
         <description>Outdoor Temperature</description>
         <category>Temperature</category>
         <tags>
@@ -117,7 +117,6 @@
 				<option value="Cool">Cool</option>
 				<option value="Dry">Dry</option>
 				<option value="Wind">Wind</option>
-				<option value="Cool">Cool</option>
 			</options>
 		</state>
 	</channel-type>

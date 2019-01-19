@@ -215,6 +215,10 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
         }
     }
 
+    /**
+     * @param sdiCommand
+     * @throws IOException
+     */
     private void updateService(JsonCommand sdiCommand) throws IOException {
         URL url = createURL(sdiCommand.getPath());
 
@@ -232,11 +236,18 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
 
     }
 
-    private void updateChannel(String channelId, SamsungDigitalInverterJsonResponse aqiResponse) {
+    /**
+     *
+     * Update with response from Samsung Digital Inverter
+     *
+     * @param channelId   channel to update
+     * @param sdiResponse Class representing the json response from the Samsung Digital Inverter
+     */
+    private void updateChannel(String channelId, SamsungDigitalInverterJsonResponse sdiResponse) {
         if (isLinked(channelId)) {
             Object value;
             try {
-                value = getValue(channelId, aqiResponse);
+                value = getValue(channelId, sdiResponse);
             } catch (Exception e) {
                 logger.debug("Device doesn't provide {} measurement", channelId.toUpperCase());
                 return;
@@ -274,9 +285,10 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
     }
 
     /**
-     * Make Call to Samsung Digital Inverter
      *
+     * Make Call to Samsung Digital Inverter
      * Data is returned as json
+     *
      */
     private SamsungDigitalInverterJsonResponse getSamsungDigitalInverterData() {
         SamsungDigitalInverterJsonResponse result = null;
@@ -307,6 +319,15 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
         return (result);
     }
 
+    /**
+     *
+     * Get value from json response, convert values to wanted type.
+     *
+     * @param channelId
+     * @param data
+     * @return Object with data from response
+     * @throws Exception
+     */
     public static Object getValue(String channelId, SamsungDigitalInverterJsonResponse data) throws Exception {
         String[] fields = StringUtils.split(channelId, "#");
         Object value;
