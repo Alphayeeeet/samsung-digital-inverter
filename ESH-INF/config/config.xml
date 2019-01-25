@@ -30,7 +30,7 @@
 		</parameter>
 		<parameter name="keystore" type="text" required="true">
 			<label>Keystore</label>
-			<description>Path to Keystore File</description>
+			<description>Path to Keystore File (pkcs #12 format)</description>
 			<default>/Users/jan/cert/samsung.pkcs12</default>
 		</parameter>
 		<parameter name="keystore_secret" type="text">
