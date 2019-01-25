@@ -68,7 +68,7 @@
 	
 	<channel-type id="outdoor_temperature">
         <item-type>Number:Temperature</item-type>
-        <label>Outdoor Inverter Temperature</label>
+        <label>Inverter Temperature</label>
         <description>Outdoor Temperature</description>
         <category>Temperature</category>
         <tags>
