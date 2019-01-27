@@ -15,6 +15,7 @@
 		<channels>
 			<channel id="power" typeId="power" />
 			<channel id="autoclean" typeId="autoclean" />
+			<channel id="beep" typeId="beep" />
 			<channel id="setpoint_temperature" typeId="setpoint_temperature" />
 			<channel id="temperature" typeId="temperature" />
 			<channel id="outdoor_temperature" typeId="outdoor_temperature" />
@@ -36,13 +37,20 @@
 		<description>Switch Device On/Off</description>
 		<category>power</category>
 	</channel-type>
-	
+
 	<channel-type id="autoclean">
-        <item-type>Switch</item-type>
-        <label>Autoclean On/Off</label>
-        <description>Enable or Diable Autoclean</description>
-        <category>Switch</category>
-    </channel-type>
+		<item-type>Switch</item-type>
+		<label>Autoclean On/Off</label>
+		<description>Enable Autoclean</description>
+		<category>Switch</category>
+	</channel-type>
+
+	<channel-type id="beep">
+		<item-type>Switch</item-type>
+		<label>Beep On/Off</label>
+		<description>Enable Beep Sound</description>
+		<category>Switch</category>
+	</channel-type>
 
 	<channel-type id="setpoint_temperature">
 		<item-type>Number:Temperature</item-type>
@@ -65,17 +73,17 @@
 		</tags>
 		<state readOnly="true" pattern="%.0f %unit%" />
 	</channel-type>
-	
+
 	<channel-type id="outdoor_temperature">
-        <item-type>Number:Temperature</item-type>
-        <label>Inverter Temperature</label>
-        <description>Outdoor Temperature</description>
-        <category>Temperature</category>
-        <tags>
-            <tag>CurrentTemperature</tag>
-        </tags>
-        <state readOnly="true" pattern="%.0f %unit%" />
-    </channel-type>
+		<item-type>Number:Temperature</item-type>
+		<label>Inverter Temperature</label>
+		<description>Outdoor Temperature</description>
+		<category>Temperature</category>
+		<tags>
+			<tag>CurrentTemperature</tag>
+		</tags>
+		<state readOnly="true" pattern="%.0f %unit%" />
+	</channel-type>
 
 	<channel-type id="winddirection">
 		<item-type>String</item-type>
@@ -85,7 +93,7 @@
 			<options>
 				<option value="All">Automatic</option>
 				<option value="Up_And_Low">Up and Down</option>
-				<option value="Left_And_Right">Left and Right</option>
+				<!-- <option value="Left_And_Right">Left and Right</option> -->
 				<option value="Fix">Fixed</option>
 			</options>
 		</state>
@@ -106,7 +114,7 @@
 			</options>
 		</state>
 	</channel-type>
-	
+
 	<channel-type id="operation_mode">
 		<item-type>String</item-type>
 		<label>Operating Mode</label>
@@ -135,20 +143,20 @@
 			</options>
 		</state>
 	</channel-type>
-	
+
 	<channel-type id="filtertime">
-        <item-type>Number</item-type>
-        <label>Run time since last cleaning</label>
-        <description>Hours since filter was cleaned</description>
-        <state readOnly="true" pattern="%.1f %unit%" />
-    </channel-type>
-    
-    <channel-type id="filteralarmtime">
-        <item-type>Number</item-type>
-        <label>Interval Time for Filter Cleaning</label>
-        <description>Cleaning interval for filter</description>
-        <state readOnly="true" pattern="%.0f %unit%" />
-    </channel-type>
+		<item-type>Number</item-type>
+		<label>Run time since last cleaning</label>
+		<description>Hours since filter was cleaned</description>
+		<state readOnly="true" pattern="%.1f %unit%" />
+	</channel-type>
+
+	<channel-type id="filteralarmtime">
+		<item-type>Number</item-type>
+		<label>Interval Time for Filter Cleaning</label>
+		<description>Cleaning interval for filter</description>
+		<state readOnly="true" pattern="%.0f %unit%" />
+	</channel-type>
 
 	<channel-type id="alarm">
 		<item-type>String</item-type>

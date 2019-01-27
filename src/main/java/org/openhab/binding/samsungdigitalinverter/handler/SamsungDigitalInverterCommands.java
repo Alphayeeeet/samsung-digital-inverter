@@ -90,4 +90,15 @@ public class SamsungDigitalInverterCommands {
         }
         return json;
     }
+
+    public static JsonCommand createSetBeepCommand(@NonNull Command command) {
+        JsonCommand json = new JsonCommand();
+        json.setPath("/devices/0/mode");
+        if ("ON".equals(command.toString())) {
+            json.setJson("{\"options\":[\"Volume_100\"]}");
+        } else {
+            json.setJson("{\"options\":[\"Volume_Mute\"]}");
+        }
+        return json;
+    }
 }

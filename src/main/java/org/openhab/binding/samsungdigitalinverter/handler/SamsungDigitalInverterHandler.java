@@ -199,6 +199,9 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
                 case SamsungDigitalInverterConstants.COMODE:
                     sdiCommand = SamsungDigitalInverterCommands.createSetComodeCommand(command);
                     break;
+                case SamsungDigitalInverterConstants.BEEP:
+                    sdiCommand = SamsungDigitalInverterCommands.createSetBeepCommand(command);
+                    break;
                 case SamsungDigitalInverterConstants.AUTOCLEAN:
                     sdiCommand = SamsungDigitalInverterCommands.createSetAutoCleanCommand(command);
                     break;
@@ -376,6 +379,10 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
                     return value;
                 case SamsungDigitalInverterConstants.AUTOCLEAN:
                     return "Autoclean_On".equals(data.getDevices().get(0).getMode().getOptions().get(2))
+                            ? SamsungDigitalInverterConstants.ON
+                            : SamsungDigitalInverterConstants.OFF;
+                case SamsungDigitalInverterConstants.BEEP:
+                    return "Volume_100".equals(data.getDevices().get(0).getMode().getOptions().get(13))
                             ? SamsungDigitalInverterConstants.ON
                             : SamsungDigitalInverterConstants.OFF;
             }
