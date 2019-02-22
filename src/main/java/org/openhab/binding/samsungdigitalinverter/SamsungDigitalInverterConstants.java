@@ -34,6 +34,7 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
 public class SamsungDigitalInverterConstants {
 
     public static final String DEVICES = "/devices";
+    public static final String USAGE_DB = "/files/usage.db";
 
     public static final String BINDING_ID = "samsungdigitalinverter";
     public static final String LOCAL = "local";
@@ -57,11 +58,16 @@ public class SamsungDigitalInverterConstants {
     public static final String OPTIONS = "options";
     public static final String OUTDOOR_TEMPERATURE = "outdoor_temperature";
     public static final String BEEP = "beep";
+    public static final String RESET_FILTER_CLEAN_ALARM = "reset_filter_clean_alarm";
+    public static final String RUNNING_TIME = "running_time";
+    public static final String POWER_USAGE = "power_usage";
+    public static final String POWER_USAGE_DIFFERENCE = "power_usage_difference";
 
     public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Collections.singleton(THING_TYPE_SDI);
     public static final Set<String> SUPPORTED_CHANNEL_IDS = Stream
             .of(SETPOINT_TEMPERATURE, TEMPERATURE_CURRENT, POWER, WIND_DIRECTION, WIND_SPEED, OPERATING_MODE, ALARM,
-                    MAX_WIND_SPEED, COMODE, FILTERTIME, FILTER_ALARMTIME, AUTOCLEAN, OUTDOOR_TEMPERATURE, BEEP)
+                    MAX_WIND_SPEED, COMODE, FILTERTIME, FILTER_ALARMTIME, AUTOCLEAN, OUTDOOR_TEMPERATURE, BEEP,
+                    RESET_FILTER_CLEAN_ALARM, RUNNING_TIME, POWER_USAGE, POWER_USAGE_DIFFERENCE)
             .collect(Collectors.toSet());
 
     // Units of measurement of the data delivered by the API

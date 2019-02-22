@@ -23,15 +23,15 @@
 			<description>Fill in port number (8888)</description>
 			<default>8888</default>
 		</parameter>
-		<parameter name="refresh" type="integer" min="30" required="false">
+		<parameter name="refresh" type="integer" min="300" required="false">
 			<label>Refresh interval</label>
 			<description>Specifies the refresh interval in seconds.</description>
-			<default>60</default>
+			<default>600</default>
 		</parameter>
 		<parameter name="keystore" type="text" required="true">
 			<label>Keystore</label>
 			<description>Path to Keystore File (pkcs #12 format)</description>
-			<default>/Users/jan/cert/samsung.pkcs12</default>
+			<default>/etc/openhab2/services/samsung.pkcs12</default>
 		</parameter>
 		<parameter name="keystore_secret" type="text">
 			<label>Keystore Password</label>

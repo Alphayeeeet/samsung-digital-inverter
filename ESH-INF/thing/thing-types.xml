@@ -23,6 +23,9 @@
 			<channel id="windspeed" typeId="windspeed" />
 			<channel id="operation_mode" typeId="operation_mode" />
 			<channel id="comode" typeId="comode" />
+			<channel id="running_time" typeId="running_time" />
+			<channel id="power_usage" typeId="power_usage"></channel>
+			<channel id="power_usage_difference" typeId="power_usage_difference"></channel>
 			<channel id="filtertime" typeId="filtertime" />
 			<channel id="filteralarmtime" typeId="filteralarmtime" />
 			<channel id="alarm" typeId="alarm" />
@@ -49,6 +52,13 @@
 		<item-type>Switch</item-type>
 		<label>Beep On/Off</label>
 		<description>Enable Beep Sound</description>
+		<category>Switch</category>
+	</channel-type>
+
+	<channel-type id="reset_filter_clean_alarm">
+		<item-type>Switch</item-type>
+		<label>Reset Filter Clean Alarm</label>
+		<description>Reset Filter Clean Alarm</description>
 		<category>Switch</category>
 	</channel-type>
 
@@ -144,15 +154,36 @@
 		</state>
 	</channel-type>
 
+	<channel-type id="running_time">
+		<item-type>Number:Time</item-type>
+		<label>Hours Running</label>
+		<description>Total Hours running</description>
+		<state readOnly="true" pattern="%.1f %unit%" />
+	</channel-type>
+
+	<channel-type id="power_usage">
+		<item-type>Number:Power</item-type>
+		<label>Total Power Consumption</label>
+		<description>Power Consumption Accumulated since reset</description>
+		<state readOnly="true" pattern="%.1f KWh" />
+	</channel-type>
+
+	<channel-type id="power_usage_difference">
+		<item-type>Number:Power</item-type>
+		<label>Power Consumption Difference</label>
+		<description>Power Consumption (since previuos report)</description>
+		<state readOnly="true" pattern="%.1f KW" />
+	</channel-type>
+
 	<channel-type id="filtertime">
-		<item-type>Number</item-type>
+		<item-type>Number:Time</item-type>
 		<label>Run time since last cleaning</label>
 		<description>Hours since filter was cleaned</description>
 		<state readOnly="true" pattern="%.1f %unit%" />
 	</channel-type>
 
 	<channel-type id="filteralarmtime">
-		<item-type>Number</item-type>
+		<item-type>Number:Time</item-type>
 		<label>Interval Time for Filter Cleaning</label>
 		<description>Cleaning interval for filter</description>
 		<state readOnly="true" pattern="%.0f %unit%" />

@@ -10,7 +10,10 @@
 package org.openhab.binding.samsungdigitalinverter.handler;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -25,7 +28,14 @@ import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.text.ParseException;
 import java.time.ZonedDateTime;
+import java.util.Base64;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -91,6 +101,8 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
 
     private SSLContext sslContext;
 
+    private static final String powerUsageSQL = "select date, power_usage, running_time from power_usage_table where date >= (select max(date) from power_usage_table where date < (select max(date) from power_usage_table)) order by date;";
+
     public SamsungDigitalInverterHandler(Thing thing) {
         super(thing);
         gson = new Gson();
@@ -122,6 +134,8 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
             HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
             HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
 
+            Class.forName("org.sqlite.JDBC");
+
         } catch (Exception e) {
             errorMsg = e.getMessage();
         }
@@ -130,20 +144,30 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
             updateStatus(ThingStatus.ONLINE);
             startAutomaticRefresh();
         } else {
-            logger.equals(errorMsg);
+            logger.error(errorMsg);
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, errorMsg);
         }
     }
 
     /**
-     * Start the job refreshing the Samsung Digial Inverter data
+     * Start the job refreshing the Samsung Digital Inverter data
      */
     private void startAutomaticRefresh() {
         if (refreshJob == null || refreshJob.isCancelled()) {
             Runnable runnable = () -> {
                 try {
+                    logger.debug("Starting Refresh");
                     // Call Samsung Digital Inverter to get data
                     sdiResponse = getSamsungDigitalInverterData();
+
+                    PowerUsage pu = getPowerUsage();
+                    sdiResponse.setPowerUsage(pu);
+
+                    sdiResponse.setPowerUsageDifference(
+                            (pu.getCurrentPowerUsage().subtract(pu.getPreviousPowerUsage())).divide(pu.getDuration()));
+
+                    logger.debug("Power Usage {}, usage since last update {}", pu.toString(),
+                            sdiResponse.getPowerUsageDifference());
 
                     // Update all channels
                     for (Channel channel : getThing().getChannels()) {
@@ -160,9 +184,80 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
         }
     }
 
+    private PowerUsage getPowerUsage() {
+        PowerUsage pu = null;
+        byte[] db = getUsageDB();
+
+        File usageDB = null;
+        Connection conn = null;
+        try {
+            usageDB = File.createTempFile("sdi", "db");
+            usageDB.deleteOnExit();
+            FileOutputStream os = new FileOutputStream(usageDB);
+            os.write(db);
+            os.close();
+            logger.debug("Power Usage DB saved as {}", usageDB.getAbsolutePath());
+
+            conn = DriverManager.getConnection("jdbc:sqlite:" + usageDB.getAbsolutePath());
+            PreparedStatement ps = conn.prepareStatement(powerUsageSQL);
+            ResultSet rs = ps.executeQuery();
+
+            pu = new PowerUsage();
+            // Two rows are returned from the table, first row is the previous save of power and running time
+            if (rs.next()) {
+                pu.setPreviousDate(rs.getString(1));
+                String str = rs.getString(2);
+                pu.setPreviousPowerUsage(str);
+                str = rs.getString(3);
+                pu.setPreviousRunningTime(str);
+                logger.debug("date {}, power_usage {}, running_time {}", rs.getString(1), rs.getBigDecimal(2),
+                        rs.getBigDecimal(3));
+            }
+            // Second row contans the last saved data
+            if (rs.next()) {
+                pu.setCurrentDate(rs.getString(1));
+                pu.setCurrentPowerUsage(rs.getString(2));
+                pu.setCurrentRunningTime(rs.getString(3));
+                logger.debug("date {}, power_usage {}, running_time {}", rs.getString(1), rs.getBigDecimal(2),
+                        rs.getBigDecimal(3));
+            } else {
+                pu.setPreviousDate(rs.getString(1));
+                pu.setPreviousPowerUsage(rs.getBigDecimal(2));
+                pu.setPreviousRunningTime(rs.getBigDecimal(3));
+                logger.debug("single row detected in power usage table");
+            }
+            rs.close();
+            ps.close();
+
+        } catch (FileNotFoundException e) {
+            logger.error(e.getMessage());
+        } catch (IOException e) {
+            logger.error(e.getMessage());
+        } catch (SQLException e) {
+            logger.error(e.getMessage());
+        } catch (ParseException e) {
+            logger.error(e.getMessage());
+        } finally
+
+        {
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                }
+            }
+            if (usageDB != null) {
+                usageDB.delete();
+            }
+        }
+
+        return (pu);
+
+    }
+
     @Override
     public void dispose() {
-        logger.debug("Disposing the Samsung Digitsal Inverter handler.");
+        logger.debug("Disposing the Samsung Digital Inverter handler.");
 
         if (refreshJob != null && !refreshJob.isCancelled()) {
             refreshJob.cancel(true);
@@ -204,6 +299,9 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
                     break;
                 case SamsungDigitalInverterConstants.AUTOCLEAN:
                     sdiCommand = SamsungDigitalInverterCommands.createSetAutoCleanCommand(command);
+                    break;
+                case SamsungDigitalInverterConstants.RESET_FILTER_CLEAN_ALARM:
+                    sdiCommand = SamsungDigitalInverterCommands.createResetFilterCleanAlarm(command);
                     break;
             }
             logger.debug("The Samsung Digital Inverter handle command {} -> {}", channelUID, command);
@@ -315,11 +413,33 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
                 errorMsg = "missing data sub-object";
                 logger.warn("Invalid response: {}", errorMsg);
             }
+
+            // Download usage.db
+            // usageDB = getUsageDB();
         } catch (Exception e) {
             logger.error("{}", e.getMessage());
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, e.getMessage());
         }
         return (result);
+    }
+
+    private byte[] getUsageDB() {
+        byte[] ret = null;
+
+        try {
+            URL url = createURL(SamsungDigitalInverterConstants.USAGE_DB);
+            logger.debug("URL = {}", url);
+            URLConnection con = openConnection(url);
+
+            String response = convertStreamToString(con.getInputStream());
+            ret = Base64.getDecoder().decode(response);
+        } catch (MalformedURLException e) {
+            logger.error("{}", e.getMessage());
+        } catch (IOException e) {
+            logger.error("{}", e.getMessage());
+        }
+
+        return (ret);
     }
 
     /**
@@ -385,6 +505,16 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
                     return "Volume_100".equals(data.getDevices().get(0).getMode().getOptions().get(13))
                             ? SamsungDigitalInverterConstants.ON
                             : SamsungDigitalInverterConstants.OFF;
+                case SamsungDigitalInverterConstants.RESET_FILTER_CLEAN_ALARM:
+                    return "FilterCleanAlarm_0".equals(data.getDevices().get(0).getMode().getOptions().get(3))
+                            ? SamsungDigitalInverterConstants.OFF
+                            : SamsungDigitalInverterConstants.ON;
+                case SamsungDigitalInverterConstants.POWER_USAGE:
+                    return data.getPowerUsage().getCurrentPowerUsage();
+                case SamsungDigitalInverterConstants.RUNNING_TIME:
+                    return data.getPowerUsage().getCurrentRunningTime();
+                case SamsungDigitalInverterConstants.POWER_USAGE_DIFFERENCE:
+                    return data.getPowerUsageDifference();
             }
         } else {
             throw new NullPointerException("data can't be null for channelID=" + channelId);

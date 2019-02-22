@@ -101,4 +101,11 @@ public class SamsungDigitalInverterCommands {
         }
         return json;
     }
+
+    public static JsonCommand createResetFilterCleanAlarm(@NonNull Command command) {
+        JsonCommand json = new JsonCommand();
+        json.setPath("/devices/0/mode");
+        json.setJson("{\"options\":[\"FilterCleanAlarm_1\"]}");
+        return json;
+    }
 }

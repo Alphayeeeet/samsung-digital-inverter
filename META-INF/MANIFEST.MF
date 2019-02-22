@@ -1,7 +1,8 @@
 Manifest-Version: 1.0
 Automatic-Module-Name: org.openhab.binding.samsungdigitalinverter
 Bundle-ActivationPolicy: lazy
-Bundle-ClassPath: .
+Bundle-ClassPath: .,
+ lib/sqlite-jdbc-3.23.1.jar
 Bundle-ManifestVersion: 2
 Bundle-Name: Samsung Digital Inverter Binding
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
