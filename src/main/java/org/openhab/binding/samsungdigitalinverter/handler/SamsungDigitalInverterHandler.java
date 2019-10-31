@@ -87,6 +87,8 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
 
     private static final int DEFAULT_REFRESH_PERIOD = 60;
 
+    private static final long POWER_USAGE_REFRESH = 30 * 60 * 1000;
+
     private ScheduledFuture<?> refreshJob;
 
     private SamsungDigitalInverterJsonResponse sdiResponse;
@@ -102,6 +104,10 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
     private SSLContext sslContext;
 
     private static final String powerUsageSQL = "select date, power_usage, running_time from power_usage_table where date >= (select max(date) from power_usage_table where date < (select max(date) from power_usage_table)) order by date;";
+
+    private long lastUpdateTimeMillis;
+
+    private PowerUsage currentPowerUsage;
 
     public SamsungDigitalInverterHandler(Thing thing) {
         super(thing);
@@ -120,6 +126,7 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
         logger.debug("config refresh = {}", config.refresh);
         logger.debug("config keystore = {}", config.keystore);
         logger.debug("config keystore secret = (omitted from logging)");
+        lastUpdateTimeMillis = 0L;
 
         String errorMsg = null;
 
@@ -160,13 +167,20 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
                     // Call Samsung Digital Inverter to get data
                     sdiResponse = getSamsungDigitalInverterData();
 
-                    PowerUsage pu = getPowerUsage();
-                    sdiResponse.setPowerUsage(pu);
+                    // downloading power usage database is very consuming for the Digital Inverter, so the usage.db are
+                    // downloaded twice per hour.
+                    if ((System.currentTimeMillis() - lastUpdateTimeMillis) > POWER_USAGE_REFRESH) {
+                        logger.debug("Updating power usage, last update was on {}", lastUpdateTimeMillis);
+                        lastUpdateTimeMillis = System.currentTimeMillis();
+                        currentPowerUsage = getPowerUsage();
+                    }
 
-                    sdiResponse.setPowerUsageDifference(
-                            (pu.getCurrentPowerUsage().subtract(pu.getPreviousPowerUsage())).divide(pu.getDuration()));
+                    sdiResponse.setPowerUsage(currentPowerUsage);
+                    sdiResponse.setPowerUsageDifference((currentPowerUsage.getCurrentPowerUsage()
+                            .subtract(currentPowerUsage.getPreviousPowerUsage()))
+                                    .divide(currentPowerUsage.getDuration()));
 
-                    logger.debug("Power Usage {}, usage since last update {}", pu.toString(),
+                    logger.debug("Power Usage {}, usage since last update {}", currentPowerUsage.toString(),
                             sdiResponse.getPowerUsageDifference());
 
                     // Update all channels
