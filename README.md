@@ -73,7 +73,7 @@ openssl pkcs12 -export -out samsung.pkcs12 -in cert.pem
 See the Openhab forum, to find the cert.pem file needed.
 
 
-# server.py
+# sdi_server.py
 ```
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import ssl
@@ -128,7 +128,7 @@ if __name__ == "__main__":
 
 
 
-# token.py
+# sdi_token.py
 
 ```
 import requests
