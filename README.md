@@ -140,5 +140,5 @@ resp = s.post("https://SamsungDI:8888/devicetoken/request", data={"DeviceToken":
 
 
 ### Credits
-I have to credit the Openhab Coumnity
+I have to credit the Openhab Community
 Information in the threads https://community.openhab.org/t/samsung-smart-air-conditioner-openhab-2-0/21581/4 and https://community.openhab.org/t/newgen-samsung-ac-protocol/33805/6 pointed me into the right direction has been of invaluable information and inspiration.
