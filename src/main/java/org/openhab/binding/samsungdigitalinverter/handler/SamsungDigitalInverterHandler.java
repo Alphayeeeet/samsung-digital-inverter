@@ -1,10 +1,14 @@
 /**
- * Copyright (c) 2010-2018 by the respective copyright holders.
+ * Copyright (c) 2010-2019 Contributors to the openHAB project
  *
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * See the NOTICE file(s) distributed with this work for additional
+ * information.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
  */
 
 package org.openhab.binding.samsungdigitalinverter.handler;
@@ -67,7 +71,6 @@ import org.eclipse.smarthome.core.types.UnDefType;
 import org.openhab.binding.samsungdigitalinverter.SamsungDigitalInverterConstants;
 import org.openhab.binding.samsungdigitalinverter.internal.SamsungDigitalInverterConfiguration;
 import org.openhab.binding.samsungdigitalinverter.json.SamsungDigitalInverterJsonResponse;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
@@ -81,7 +84,7 @@ import com.google.gson.Gson;
 
 public class SamsungDigitalInverterHandler extends BaseThingHandler {
 
-    private Logger logger = LoggerFactory.getLogger(SamsungDigitalInverterHandler.class);
+    private org.slf4j.Logger logger = LoggerFactory.getLogger(SamsungDigitalInverterHandler.class);
 
     private SamsungDigitalInverterConfiguration config;
 
@@ -151,7 +154,7 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
             updateStatus(ThingStatus.ONLINE);
             startAutomaticRefresh();
         } else {
-            logger.error(errorMsg);
+            logger.error("{}", errorMsg);
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, errorMsg);
         }
     }
@@ -238,19 +241,19 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
                 pu.setPreviousDate(rs.getString(1));
                 pu.setPreviousPowerUsage(rs.getBigDecimal(2));
                 pu.setPreviousRunningTime(rs.getBigDecimal(3));
-                logger.debug("single row detected in power usage table");
+                logger.debug("{}", "single row detected in power usage table");
             }
             rs.close();
             ps.close();
 
         } catch (FileNotFoundException e) {
-            logger.error(e.getMessage());
+            logger.error("{}", e.getMessage());
         } catch (IOException e) {
-            logger.error(e.getMessage());
+            logger.error("{}", e.getMessage());
         } catch (SQLException e) {
-            logger.error(e.getMessage());
+            logger.error("{}", e.getMessage());
         } catch (ParseException e) {
-            logger.error(e.getMessage());
+            logger.error("{}", e.getMessage());
         } finally
 
         {
@@ -324,7 +327,7 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
                     logger.debug("To execute command: {} {}", sdiCommand.getPath(), sdiCommand.getJson());
                     updateService(sdiCommand);
                 } catch (IOException e) {
-                    logger.error(e.getMessage());
+                    logger.error("{}", e.getMessage());
                 }
             }
         }
@@ -355,7 +358,7 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
      *
      * Update with response from Samsung Digital Inverter
      *
-     * @param channelId   channel to update
+     * @param channelId channel to update
      * @param sdiResponse Class representing the json response from the Samsung Digital Inverter
      */
     private void updateChannel(String channelId, SamsungDigitalInverterJsonResponse sdiResponse) {
@@ -531,7 +534,7 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
                     return data.getPowerUsageDifference();
             }
         } else {
-            throw new NullPointerException("data can't be null for channelID=" + channelId);
+            throw new ChannelException("data can't be null for channelID=" + channelId);
         }
 
         return null;
