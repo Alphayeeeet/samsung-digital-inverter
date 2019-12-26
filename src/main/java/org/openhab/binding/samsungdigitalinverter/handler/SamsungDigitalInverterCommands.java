@@ -13,7 +13,7 @@
 
 package org.openhab.binding.samsungdigitalinverter.handler;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.core.types.Command;
 
 /**
@@ -24,9 +24,10 @@ import org.eclipse.smarthome.core.types.Command;
  * @author Jan Grønlien - Initial contribution
  */
 
+@NonNullByDefault
 public class SamsungDigitalInverterCommands {
 
-    public static JsonCommand createPowerCommand(@NonNull Command command) {
+    public static JsonCommand createPowerCommand(Command command) {
         JsonCommand json = new JsonCommand();
         String state = "";
         switch (command.toString()) {
@@ -42,49 +43,49 @@ public class SamsungDigitalInverterCommands {
         return json;
     }
 
-    public static JsonCommand createDesiredTemperatureCommand(@NonNull Command command) {
+    public static JsonCommand createDesiredTemperatureCommand(Command command) {
         JsonCommand json = new JsonCommand();
         json.setPath("/devices/0/temperatures/0");
         json.setJson(String.format("{\"desired\": %s}", command.toString().split(" ")[0]));
         return json;
     }
 
-    public static JsonCommand createDesiredWindSpeedCommand(@NonNull Command command) {
+    public static JsonCommand createDesiredWindSpeedCommand(Command command) {
         JsonCommand json = new JsonCommand();
         json.setPath("/devices/0/wind");
         json.setJson(String.format("{\"speedLevel\": %s}", command.toString()));
         return json;
     }
 
-    public static JsonCommand createMaxWindSpeedCommand(@NonNull Command command) {
+    public static JsonCommand createMaxWindSpeedCommand(Command command) {
         JsonCommand json = new JsonCommand();
         json.setPath("/devices/0/wind");
         json.setJson(String.format("{\"maxSpeedLevel\": %s}", command.toString()));
         return json;
     }
 
-    public static JsonCommand createWindDirectionCommand(@NonNull Command command) {
+    public static JsonCommand createWindDirectionCommand(Command command) {
         JsonCommand json = new JsonCommand();
         json.setPath("/devices/0/wind");
         json.setJson(String.format("{\"direction\": \"%s\"}", command.toString()));
         return json;
     }
 
-    public static JsonCommand createSetOperatingModeCommand(@NonNull Command command) {
+    public static JsonCommand createSetOperatingModeCommand(Command command) {
         JsonCommand json = new JsonCommand();
         json.setPath("/devices/0/mode");
         json.setJson(String.format("{\"modes\":[\"%s\"]}", command.toString()));
         return json;
     }
 
-    public static JsonCommand createSetComodeCommand(@NonNull Command command) {
+    public static JsonCommand createSetComodeCommand(Command command) {
         JsonCommand json = new JsonCommand();
         json.setPath("/devices/0/mode");
         json.setJson(String.format("{\"options\":[\"%s\"]}", command.toString()));
         return json;
     }
 
-    public static JsonCommand createSetAutoCleanCommand(@NonNull Command command) {
+    public static JsonCommand createSetAutoCleanCommand(Command command) {
         JsonCommand json = new JsonCommand();
         json.setPath("/devices/0/mode");
         if ("ON".equals(command.toString())) {
@@ -95,7 +96,7 @@ public class SamsungDigitalInverterCommands {
         return json;
     }
 
-    public static JsonCommand createSetBeepCommand(@NonNull Command command) {
+    public static JsonCommand createSetBeepCommand(Command command) {
         JsonCommand json = new JsonCommand();
         json.setPath("/devices/0/mode");
         if ("ON".equals(command.toString())) {
@@ -106,7 +107,7 @@ public class SamsungDigitalInverterCommands {
         return json;
     }
 
-    public static JsonCommand createResetFilterCleanAlarm(@NonNull Command command) {
+    public static JsonCommand createResetFilterCleanAlarm(Command command) {
         JsonCommand json = new JsonCommand();
         json.setPath("/devices/0/mode");
         json.setJson("{\"options\":[\"FilterCleanAlarm_1\"]}");

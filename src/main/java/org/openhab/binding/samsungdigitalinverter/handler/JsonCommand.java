@@ -13,6 +13,8 @@
 
 package org.openhab.binding.samsungdigitalinverter.handler;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  *
  * The {@link JsonCommand} class holds the json commands for communication with Samsung Digital Inverter
@@ -20,9 +22,15 @@ package org.openhab.binding.samsungdigitalinverter.handler;
  * @author Jan Grønlien - Initial contribution
  */
 
+@NonNullByDefault
 public class JsonCommand {
     private String path;
     private String json;
+
+    public JsonCommand() {
+        this.path = "";
+        this.json = "";
+    }
 
     /**
      * @return the path

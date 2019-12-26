@@ -26,6 +26,7 @@ import java.time.format.DateTimeFormatter;
  */
 
 public class PowerUsage {
+
     LocalDateTime currentDate;
     BigDecimal currentPowerUsage;
     BigDecimal currentRunningTime;

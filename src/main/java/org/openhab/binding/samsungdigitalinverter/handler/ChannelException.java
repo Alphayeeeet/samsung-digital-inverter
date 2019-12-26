@@ -13,6 +13,8 @@
 
 package org.openhab.binding.samsungdigitalinverter.handler;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  *
  * The {@link ChannelException} class is the Channel Exception class for the Samsung Digital Inverter
@@ -20,7 +22,13 @@ package org.openhab.binding.samsungdigitalinverter.handler;
  * @author Jan Grønlien - Initial contribution
  */
 
+@NonNullByDefault
 public class ChannelException extends Exception {
+
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1L;
 
     public ChannelException() {
         // TODO Auto-generated constructor stub
