@@ -51,9 +51,11 @@ The information from the Samsung Digital Inverter:
 
 
 ## Setup
+
 To comunicate with the Samsung Digital Inverter, a token is required. And a keystore file with the Samsung certificate.
 
 ### Getting the token.
+
 To get token for your unit save the text below as a Python script, name it like server.py.
 The script will start a webserver on port 8889, this webserver must be up running unit you have . 
 Next turn the power of on your unit (with the remote)
@@ -70,10 +72,12 @@ openssl pkcs12 -export -out samsung.pkcs12 -in cert.pem
 
 
 # cert.pem
+
 See the Openhab forum, to find the cert.pem file needed.
 
 
 # sdi_server.py
+
 ```
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import ssl
@@ -140,5 +144,6 @@ resp = s.post("https://SamsungDI:8888/devicetoken/request", data={"DeviceToken":
 
 
 ### Credits
+
 I have to credit the Openhab Community
 Information in the threads https://community.openhab.org/t/samsung-smart-air-conditioner-openhab-2-0/21581/4 and https://community.openhab.org/t/newgen-samsung-ac-protocol/33805/6 pointed me into the right direction has been of invaluable information and inspiration.
