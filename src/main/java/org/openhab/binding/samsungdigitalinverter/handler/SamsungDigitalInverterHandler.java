@@ -53,24 +53,22 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
 import org.apache.commons.lang.StringUtils;
-import org.eclipse.smarthome.core.library.types.DateTimeType;
-import org.eclipse.smarthome.core.library.types.DecimalType;
-import org.eclipse.smarthome.core.library.types.PointType;
-import org.eclipse.smarthome.core.library.types.QuantityType;
-import org.eclipse.smarthome.core.library.types.StringType;
-import org.eclipse.smarthome.core.thing.Channel;
-import org.eclipse.smarthome.core.thing.ChannelUID;
-import org.eclipse.smarthome.core.thing.Thing;
-import org.eclipse.smarthome.core.thing.ThingStatus;
-import org.eclipse.smarthome.core.thing.ThingStatusDetail;
-import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
-import org.eclipse.smarthome.core.types.Command;
-import org.eclipse.smarthome.core.types.RefreshType;
-import org.eclipse.smarthome.core.types.State;
-import org.eclipse.smarthome.core.types.UnDefType;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.samsungdigitalinverter.SamsungDigitalInverterConstants;
 import org.openhab.binding.samsungdigitalinverter.internal.SamsungDigitalInverterConfiguration;
 import org.openhab.binding.samsungdigitalinverter.json.SamsungDigitalInverterJsonResponse;
+import org.openhab.core.library.types.DateTimeType;
+import org.openhab.core.library.types.DecimalType;
+import org.openhab.core.library.types.PointType;
+import org.openhab.core.library.types.QuantityType;
+import org.openhab.core.library.types.StringType;
+import org.openhab.core.thing.ChannelUID;
+import org.openhab.core.thing.Thing;
+import org.openhab.core.thing.ThingStatus;
+import org.openhab.core.thing.ThingStatusDetail;
+import org.openhab.core.thing.binding.BaseThingHandler;
+import org.openhab.core.types.RefreshType;
+import org.openhab.core.types.UnDefType;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
@@ -110,7 +108,7 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
 
     private long lastUpdateTimeMillis;
 
-    private PowerUsage currentPowerUsage;
+    private @Nullable PowerUsage currentPowerUsage;
 
     public SamsungDigitalInverterHandler(Thing thing) {
         super(thing);
@@ -123,7 +121,7 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
         logger.debug("Initializing Samsung Digital Inverter handler.");
 
         config = getConfigAs(SamsungDigitalInverterConfiguration.class);
-        logger.debug("config bearer = (omitted from logging)");
+        logger.debug("{}", "config bearer = (omitted from logging)");
         logger.debug("config ip = {}", config.ip);
         logger.debug("config port = {}", config.port);
         logger.debug("config refresh = {}", config.refresh);
@@ -179,9 +177,14 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
                     }
 
                     sdiResponse.setPowerUsage(currentPowerUsage);
-                    sdiResponse.setPowerUsageDifference((currentPowerUsage.getCurrentPowerUsage()
-                            .subtract(currentPowerUsage.getPreviousPowerUsage()))
-                                    .divide(currentPowerUsage.getDuration()));
+                    if (currentPowerUsage.getDuration() == null) {
+                        logger.debug("{}", "currentPowerUsage.getDuration() is null");
+                        sdiResponse.setPowerUsageDifference(new BigDecimal(0));
+                    } else {
+                        sdiResponse.setPowerUsageDifference((currentPowerUsage.getCurrentPowerUsage()
+                                .subtract(currentPowerUsage.getPreviousPowerUsage()))
+                                        .divide(currentPowerUsage.getDuration()));
+                    }
 
                     logger.debug("Power Usage {}, usage since last update {}", currentPowerUsage.toString(),
                             sdiResponse.getPowerUsageDifference());
@@ -207,65 +210,69 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
 
         File usageDB = null;
         Connection conn = null;
-        try {
-            usageDB = File.createTempFile("sdi", "db");
-            usageDB.deleteOnExit();
-            FileOutputStream os = new FileOutputStream(usageDB);
-            os.write(db);
-            os.close();
-            logger.debug("Power Usage DB saved as {}", usageDB.getAbsolutePath());
+        if (db != null) {
+            try {
+                usageDB = File.createTempFile("sdi", "db");
+                usageDB.deleteOnExit();
+                FileOutputStream os = new FileOutputStream(usageDB);
+                os.write(db);
+                os.close();
+                logger.debug("Power Usage DB saved as {}", usageDB.getAbsolutePath());
 
-            conn = DriverManager.getConnection("jdbc:sqlite:" + usageDB.getAbsolutePath());
-            PreparedStatement ps = conn.prepareStatement(powerUsageSQL);
-            ResultSet rs = ps.executeQuery();
+                conn = DriverManager.getConnection("jdbc:sqlite:" + usageDB.getAbsolutePath());
+                PreparedStatement ps = conn.prepareStatement(powerUsageSQL);
+                ResultSet rs = ps.executeQuery();
 
-            pu = new PowerUsage();
-            // Two rows are returned from the table, first row is the previous save of power and running time
-            if (rs.next()) {
-                pu.setPreviousDate(rs.getString(1));
-                String str = rs.getString(2);
-                pu.setPreviousPowerUsage(str);
-                str = rs.getString(3);
-                pu.setPreviousRunningTime(str);
-                logger.debug("date {}, power_usage {}, running_time {}", rs.getString(1), rs.getBigDecimal(2),
-                        rs.getBigDecimal(3));
-            }
-            // Second row contans the last saved data
-            if (rs.next()) {
-                pu.setCurrentDate(rs.getString(1));
-                pu.setCurrentPowerUsage(rs.getString(2));
-                pu.setCurrentRunningTime(rs.getString(3));
-                logger.debug("date {}, power_usage {}, running_time {}", rs.getString(1), rs.getBigDecimal(2),
-                        rs.getBigDecimal(3));
-            } else {
-                pu.setPreviousDate(rs.getString(1));
-                pu.setPreviousPowerUsage(rs.getBigDecimal(2));
-                pu.setPreviousRunningTime(rs.getBigDecimal(3));
-                logger.debug("{}", "single row detected in power usage table");
-            }
-            rs.close();
-            ps.close();
+                pu = new PowerUsage();
+                // Two rows are returned from the table, first row is the previous save of power and running time
+                if (rs.next()) {
+                    pu.setPreviousDate(rs.getString(1));
+                    String str = rs.getString(2);
+                    pu.setPreviousPowerUsage(str);
+                    str = rs.getString(3);
+                    pu.setPreviousRunningTime(str);
+                    logger.debug("date {}, power_usage {}, running_time {}", rs.getString(1), rs.getBigDecimal(2),
+                            rs.getBigDecimal(3));
+                }
+                // Second row contans the last saved data
+                if (rs.next()) {
+                    pu.setCurrentDate(rs.getString(1));
+                    pu.setCurrentPowerUsage(rs.getString(2));
+                    pu.setCurrentRunningTime(rs.getString(3));
+                    logger.debug("date {}, power_usage {}, running_time {}", rs.getString(1), rs.getBigDecimal(2),
+                            rs.getBigDecimal(3));
+                } else {
+                    pu.setPreviousDate(rs.getString(1));
+                    pu.setPreviousPowerUsage(rs.getBigDecimal(2));
+                    pu.setPreviousRunningTime(rs.getBigDecimal(3));
+                    logger.debug("{}", "single row detected in power usage table");
+                }
+                rs.close();
+                ps.close();
 
-        } catch (FileNotFoundException e) {
-            logger.error("{}", e.getMessage());
-        } catch (IOException e) {
-            logger.error("{}", e.getMessage());
-        } catch (SQLException e) {
-            logger.error("{}", e.getMessage());
-        } catch (ParseException e) {
-            logger.error("{}", e.getMessage());
-        } finally
+            } catch (FileNotFoundException e) {
+                logger.error("{}", e.getMessage());
+            } catch (IOException e) {
+                logger.error("{}", e.getMessage());
+            } catch (SQLException e) {
+                logger.error("{}", e.getMessage());
+            } catch (ParseException e) {
+                logger.error("{}", e.getMessage());
+            } finally
 
-        {
-            if (conn != null) {
-                try {
-                    conn.close();
-                } catch (SQLException e) {
+            {
+                if (conn != null) {
+                    try {
+                        conn.close();
+                    } catch (SQLException e) {
+                    }
+                }
+                if (usageDB != null) {
+                    usageDB.delete();
                 }
             }
-            if (usageDB != null) {
-                usageDB.delete();
-            }
+        } else {
+            logger.warn("{}", "No Power Usage DB to download");
         }
 
         return (pu);
