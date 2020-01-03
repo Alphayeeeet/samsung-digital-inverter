@@ -72,6 +72,7 @@ import org.eclipse.smarthome.core.types.UnDefType;
 import org.openhab.binding.samsungdigitalinverter.SamsungDigitalInverterConstants;
 import org.openhab.binding.samsungdigitalinverter.internal.SamsungDigitalInverterConfiguration;
 import org.openhab.binding.samsungdigitalinverter.json.SamsungDigitalInverterJsonResponse;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
@@ -85,7 +86,7 @@ import com.google.gson.Gson;
 
 public class SamsungDigitalInverterHandler extends BaseThingHandler {
 
-    private org.slf4j.Logger logger = LoggerFactory.getLogger(SamsungDigitalInverterHandler.class);
+    private Logger logger = LoggerFactory.getLogger(SamsungDigitalInverterHandler.class);
 
     private SamsungDigitalInverterConfiguration config;
 
