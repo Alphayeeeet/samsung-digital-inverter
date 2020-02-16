@@ -25,7 +25,6 @@
 			<channel id="comode" typeId="comode" />
 			<channel id="running_time" typeId="running_time" />
 			<channel id="power_usage" typeId="power_usage"></channel>
-			<channel id="power_usage_difference" typeId="power_usage_difference"></channel>
 			<channel id="filtertime" typeId="filtertime" />
 			<channel id="filteralarmtime" typeId="filteralarmtime" />
 			<channel id="alarm" typeId="alarm" />
@@ -166,13 +165,6 @@
 		<label>Total Power Consumption</label>
 		<description>Power Consumption Accumulated since reset</description>
 		<state readOnly="true" pattern="%.1f KWh" />
-	</channel-type>
-
-	<channel-type id="power_usage_difference">
-		<item-type>Number:Power</item-type>
-		<label>Power Consumption Last Interval</label>
-		<description>Power Consumption by hour for last interval</description>
-		<state readOnly="true" pattern="%.1f KW" />
 	</channel-type>
 
 	<channel-type id="filtertime">

@@ -170,32 +170,28 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
                 try {
                     logger.debug("Starting Refresh");
                     // Call Samsung Digital Inverter to get data
-                    sdiResponse = getSamsungDigitalInverterData();
+                    if (this.getThing().getStatus() == ThingStatus.ONLINE) {
+                        sdiResponse = getSamsungDigitalInverterData();
+                        if (sdiResponse != null) {
 
-                    // downloading power usage database is very consuming for the Digital Inverter, so the usage.db are
-                    // downloaded twice per hour.
-                    if ((System.currentTimeMillis() - lastUpdateTimeMillis) > POWER_USAGE_REFRESH) {
-                        logger.debug("Updating power usage, last update was on {}", lastUpdateTimeMillis);
-                        lastUpdateTimeMillis = System.currentTimeMillis();
-                        currentPowerUsage = getPowerUsage();
-                    }
+                            // downloading power usage database is very consuming for the Digital Inverter, so the
+                            // usage.db
+                            // are
+                            // downloaded twice per hour.
+                            if ((System.currentTimeMillis() - lastUpdateTimeMillis) > POWER_USAGE_REFRESH) {
+                                logger.debug("Updating power usage, last update was on {}", lastUpdateTimeMillis);
+                                lastUpdateTimeMillis = System.currentTimeMillis();
+                                currentPowerUsage = getPowerUsage();
+                            }
 
-                    sdiResponse.setPowerUsage(currentPowerUsage);
-                    if (currentPowerUsage.getDuration() == null) {
-                        logger.debug("{}", "currentPowerUsage.getDuration() is null");
-                        sdiResponse.setPowerUsageDifference(new BigDecimal(0));
-                    } else {
-                        sdiResponse.setPowerUsageDifference((currentPowerUsage.getCurrentPowerUsage()
-                                .subtract(currentPowerUsage.getPreviousPowerUsage()))
-                                        .divide(currentPowerUsage.getDuration()));
-                    }
-
-                    logger.debug("Power Usage {}, usage since last update {}", currentPowerUsage.toString(),
-                            sdiResponse.getPowerUsageDifference());
-
-                    // Update all channels
-                    for (Channel channel : getThing().getChannels()) {
-                        updateChannel(channel.getUID().getId(), sdiResponse);
+                            sdiResponse.setPowerUsage(currentPowerUsage);
+                            // Update all channels
+                            for (Channel channel : getThing().getChannels()) {
+                                updateChannel(channel.getUID().getId(), sdiResponse);
+                            }
+                        } else {
+                            logger.warn("{}", "getSamsungDigitalInverterData() returned null ");
+                        }
                     }
                 } catch (Exception e) {
                     logger.error("Exception occurred during execution: {}", e.getMessage(), e);
@@ -541,8 +537,6 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
                     return data.getPowerUsage().getCurrentPowerUsage();
                 case SamsungDigitalInverterConstants.RUNNING_TIME:
                     return data.getPowerUsage().getCurrentRunningTime();
-                case SamsungDigitalInverterConstants.POWER_USAGE_DIFFERENCE:
-                    return data.getPowerUsageDifference();
             }
         } else {
             throw new ChannelException("data can't be null for channelID=" + channelId);
