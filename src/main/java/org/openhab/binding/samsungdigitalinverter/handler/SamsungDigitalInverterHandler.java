@@ -588,7 +588,7 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
     }
 
     private URL createURL(String path) throws MalformedURLException {
-        return (new URL("https://" + config.ip + ":" + config.port + "/" + path));
+        return (new URL("https://" + config.ip + ":" + config.port + path));
     }
 
     private HttpsURLConnection openConnection(URL url) throws IOException {
