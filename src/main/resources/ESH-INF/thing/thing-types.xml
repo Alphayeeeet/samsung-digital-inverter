@@ -37,7 +37,7 @@
 		<item-type>Switch</item-type>
 		<label>Power On/Off</label>
 		<description>Switch Device On/Off</description>
-		<category>power</category>
+		<category>Power</category>
 	</channel-type>
 
 	<channel-type id="autoclean">
@@ -112,7 +112,7 @@
 		<item-type>String</item-type>
 		<label>Wind Speed</label>
 		<description>Set Wind Speed</description>
-		<category>windspeed</category>
+		<category>Windspeed</category>
 		<state>
 			<options>
 				<option value="0">Auto</option>
