@@ -23,9 +23,9 @@ import javax.measure.quantity.Dimensionless;
 import javax.measure.quantity.Temperature;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.eclipse.smarthome.core.library.unit.SIUnits;
-import org.eclipse.smarthome.core.library.unit.SmartHomeUnits;
-import org.eclipse.smarthome.core.thing.ThingTypeUID;
+import org.openhab.core.library.unit.SIUnits;
+import org.openhab.core.library.unit.SmartHomeUnits;
+import org.openhab.core.thing.ThingTypeUID;
 
 /**
  *

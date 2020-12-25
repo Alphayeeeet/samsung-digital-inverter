@@ -14,7 +14,7 @@
 package org.openhab.binding.samsungdigitalinverter.handler;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.eclipse.smarthome.core.types.Command;
+import org.openhab.core.types.Command;
 
 /**
  *
