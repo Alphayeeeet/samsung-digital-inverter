@@ -23,8 +23,8 @@ import javax.measure.quantity.Dimensionless;
 import javax.measure.quantity.Temperature;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.openhab.core.library.unit.Units.
 import org.openhab.core.library.unit.SIUnits;
+import org.openhab.core.library.unit.Units;
 import org.openhab.core.thing.ThingTypeUID;
 
 /* import org.openhab.core.library.unit.SmartHomeUnits; */
@@ -75,7 +75,7 @@ public class SamsungDigitalInverterConstants {
 
     // Units of measurement of the data delivered by the API
     public static final Unit<Temperature> SDI_TEMPERATURE_UNIT = SIUnits.CELSIUS;
-    public static final Unit<Dimensionless> SDI_HUMIDITY_UNIT = SmartHomeUnits.PERCENT;
+    public static final Unit<Dimensionless> SDI_HUMIDITY_UNIT = Units.PERCENT;
 
     // Power Constants
     public static final Integer ON = 1;
