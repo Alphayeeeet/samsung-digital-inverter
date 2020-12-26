@@ -84,5 +84,4 @@ public class SamsungDigitalInverterJsonAlarms {
 
     public SamsungDigitalInverterJsonAlarms() {
     }
-
 }

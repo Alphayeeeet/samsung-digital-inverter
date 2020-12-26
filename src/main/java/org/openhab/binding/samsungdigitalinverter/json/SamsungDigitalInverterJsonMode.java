@@ -71,5 +71,4 @@ public class SamsungDigitalInverterJsonMode {
 
     public SamsungDigitalInverterJsonMode() {
     }
-
 }

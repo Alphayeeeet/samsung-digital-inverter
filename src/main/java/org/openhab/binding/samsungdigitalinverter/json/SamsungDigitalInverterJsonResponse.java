@@ -62,5 +62,4 @@ public class SamsungDigitalInverterJsonResponse {
     public void setPowerUsage(PowerUsage powerUsage) {
         this.powerUsage = powerUsage;
     }
-
 }

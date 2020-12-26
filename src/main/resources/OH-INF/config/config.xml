@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config-description:config-descriptions
-xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-xmlns:config-description="https://openhab.org/schemas/config-description/v1.0.0"
-xsi:schemaLocation="https://openhab.org/schemas/config-description/v1.0.0 https://openhab.org/schemas/config-description-1.0.0.xsd">
-	
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:config-description="https://openhab.org/schemas/config-description/v1.0.0"
+	xsi:schemaLocation="https://openhab.org/schemas/config-description/v1.0.0 https://openhab.org/schemas/config-description-1.0.0.xsd">
+
 	<config-description uri="thing-type:samsung:digitalinverter">
 
 		<parameter name="bearer" type="text" required="false">
@@ -31,7 +31,7 @@ xsi:schemaLocation="https://openhab.org/schemas/config-description/v1.0.0 https:
 		<parameter name="keystore" type="text" required="true">
 			<label>Keystore</label>
 			<description>Path to Keystore File (pkcs #12 format)</description>
-			<default>/etc/openhab2/services/samsung.pkcs12</default>
+			<default>/etc/openhab/services/samsung.pkcs12</default>
 		</parameter>
 		<parameter name="keystore_secret" type="text">
 			<label>Keystore Password</label>

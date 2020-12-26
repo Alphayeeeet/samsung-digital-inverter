@@ -7,30 +7,31 @@
 	<thing-type id="sdi">
 		<label>Samsung Digital Inverter</label>
 		<description>
-		Controls a Samsung Digital Inverter
-		In order to comunicate with the Samsung Digital Inverter you must obtain a unique Token for your device.
+			Controls a Samsung Digital Inverter
+			In order to comunicate with the Samsung Digital Inverter you must
+			obtain a unique Token for your device.
 		</description>
 		<category>HVAC</category>
 
 		<channels>
-			<channel id="power" typeId="power" />
-			<channel id="autoclean" typeId="autoclean" />
-			<channel id="beep" typeId="beep" />
-			<channel id="setpoint_temperature" typeId="setpoint_temperature" />
-			<channel id="temperature" typeId="temperature" />
-			<channel id="outdoor_temperature" typeId="outdoor_temperature" />
-			<channel id="winddirection" typeId="winddirection" />
-			<channel id="windspeed" typeId="windspeed" />
-			<channel id="operation_mode" typeId="operation_mode" />
-			<channel id="comode" typeId="comode" />
-			<channel id="running_time" typeId="running_time" />
+			<channel id="power" typeId="power"/>
+			<channel id="autoclean" typeId="autoclean"/>
+			<channel id="beep" typeId="beep"/>
+			<channel id="setpoint_temperature" typeId="setpoint_temperature"/>
+			<channel id="temperature" typeId="temperature"/>
+			<channel id="outdoor_temperature" typeId="outdoor_temperature"/>
+			<channel id="winddirection" typeId="winddirection"/>
+			<channel id="windspeed" typeId="windspeed"/>
+			<channel id="operation_mode" typeId="operation_mode"/>
+			<channel id="comode" typeId="comode"/>
+			<channel id="running_time" typeId="running_time"/>
 			<channel id="power_usage" typeId="power_usage"></channel>
-			<channel id="filtertime" typeId="filtertime" />
-			<channel id="filteralarmtime" typeId="filteralarmtime" />
-			<channel id="alarm" typeId="alarm" />
+			<channel id="filtertime" typeId="filtertime"/>
+			<channel id="filteralarmtime" typeId="filteralarmtime"/>
+			<channel id="alarm" typeId="alarm"/>
 		</channels>
 
-		<config-description-ref uri="thing-type:samsung:digitalinverter" />
+		<config-description-ref uri="thing-type:samsung:digitalinverter"/>
 	</thing-type>
 
 	<channel-type id="power">
@@ -80,7 +81,7 @@
 		<tags>
 			<tag>CurrentTemperature</tag>
 		</tags>
-		<state readOnly="true" pattern="%.0f %unit%" />
+		<state readOnly="true" pattern="%.0f %unit%"/>
 	</channel-type>
 
 	<channel-type id="outdoor_temperature">
@@ -91,7 +92,7 @@
 		<tags>
 			<tag>CurrentTemperature</tag>
 		</tags>
-		<state readOnly="true" pattern="%.0f %unit%" />
+		<state readOnly="true" pattern="%.0f %unit%"/>
 	</channel-type>
 
 	<channel-type id="winddirection">
@@ -157,28 +158,28 @@
 		<item-type>Number:Time</item-type>
 		<label>Hours Running</label>
 		<description>Total Hours running</description>
-		<state readOnly="true" pattern="%.1f %unit%" />
+		<state readOnly="true" pattern="%.1f %unit%"/>
 	</channel-type>
 
 	<channel-type id="power_usage">
 		<item-type>Number:Power</item-type>
 		<label>Total Power Consumption</label>
 		<description>Power Consumption Accumulated since reset</description>
-		<state readOnly="true" pattern="%.1f KWh" />
+		<state readOnly="true" pattern="%.1f KWh"/>
 	</channel-type>
 
 	<channel-type id="filtertime">
 		<item-type>Number:Time</item-type>
 		<label>Run time since last cleaning</label>
 		<description>Hours since filter was cleaned</description>
-		<state readOnly="true" pattern="%.1f %unit%" />
+		<state readOnly="true" pattern="%.1f %unit%"/>
 	</channel-type>
 
 	<channel-type id="filteralarmtime">
 		<item-type>Number:Time</item-type>
 		<label>Interval Time for Filter Cleaning</label>
 		<description>Cleaning interval for filter</description>
-		<state readOnly="true" pattern="%.0f %unit%" />
+		<state readOnly="true" pattern="%.0f %unit%"/>
 	</channel-type>
 
 	<channel-type id="alarm">
@@ -189,4 +190,3 @@
 
 
 </thing:thing-descriptions>
-

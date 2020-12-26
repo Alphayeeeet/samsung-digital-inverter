@@ -69,5 +69,4 @@ public class SamsungDigitalInverterJsonWind {
 
     public SamsungDigitalInverterJsonWind() {
     }
-
 }

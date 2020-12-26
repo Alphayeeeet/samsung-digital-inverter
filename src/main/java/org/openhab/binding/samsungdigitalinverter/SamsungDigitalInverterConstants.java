@@ -23,10 +23,11 @@ import javax.measure.quantity.Dimensionless;
 import javax.measure.quantity.Temperature;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.openhab.core.library.unit.Units.
 import org.openhab.core.library.unit.SIUnits;
-import org.openhab.core.library.unit.SmartHomeUnits;
 import org.openhab.core.thing.ThingTypeUID;
 
+/* import org.openhab.core.library.unit.SmartHomeUnits; */
 /**
  *
  * The {@link SamsungDigitalInverterConstants} class defines common constants
@@ -79,5 +80,4 @@ public class SamsungDigitalInverterConstants {
     // Power Constants
     public static final Integer ON = 1;
     public static final Integer OFF = 0;
-
 }

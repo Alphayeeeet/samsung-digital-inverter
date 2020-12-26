@@ -39,5 +39,4 @@ public class SamsungDigitalInverterJsonDiagnosis {
 
     public SamsungDigitalInverterJsonDiagnosis() {
     }
-
 }

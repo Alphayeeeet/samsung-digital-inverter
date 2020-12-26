@@ -39,5 +39,4 @@ public class SamsungDigitalInverterJsonLink {
 
     public SamsungDigitalInverterJsonLink() {
     }
-
 }

@@ -39,5 +39,4 @@ public class SamsungDigitalInverterJsonEnergyConsumption {
     public void setSaveLocation(String saveLocation) {
         this.saveLocation = saveLocation;
     }
-
 }

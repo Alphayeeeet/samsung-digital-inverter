@@ -59,5 +59,4 @@ public class JsonCommand {
     public void setJson(String json) {
         this.json = json;
     }
-
 }

@@ -16,13 +16,13 @@ package org.openhab.binding.samsungdigitalinverter.internal;
 import java.util.Collections;
 import java.util.Set;
 
+import org.openhab.binding.samsungdigitalinverter.SamsungDigitalInverterConstants;
+import org.openhab.binding.samsungdigitalinverter.handler.SamsungDigitalInverterHandler;
 import org.openhab.core.thing.Thing;
 import org.openhab.core.thing.ThingTypeUID;
 import org.openhab.core.thing.binding.BaseThingHandlerFactory;
 import org.openhab.core.thing.binding.ThingHandler;
 import org.openhab.core.thing.binding.ThingHandlerFactory;
-import org.openhab.binding.samsungdigitalinverter.SamsungDigitalInverterConstants;
-import org.openhab.binding.samsungdigitalinverter.handler.SamsungDigitalInverterHandler;
 import org.osgi.service.component.annotations.Component;
 
 /**
@@ -54,5 +54,4 @@ public class SamsungDigitalInverterHandlerFactory extends BaseThingHandlerFactor
 
         return null;
     }
-
 }

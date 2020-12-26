@@ -163,5 +163,4 @@ public class PowerUsage {
     public BigDecimal getDuration() {
         return (currentRunningTime.subtract(previousRunningTime));
     }
-
 }

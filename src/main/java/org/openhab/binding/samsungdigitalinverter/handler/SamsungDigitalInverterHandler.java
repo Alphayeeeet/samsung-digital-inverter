@@ -54,6 +54,9 @@ import javax.net.ssl.X509TrustManager;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.jdt.annotation.Nullable;
+import org.openhab.binding.samsungdigitalinverter.SamsungDigitalInverterConstants;
+import org.openhab.binding.samsungdigitalinverter.internal.SamsungDigitalInverterConfiguration;
+import org.openhab.binding.samsungdigitalinverter.json.SamsungDigitalInverterJsonResponse;
 import org.openhab.core.library.types.DateTimeType;
 import org.openhab.core.library.types.DecimalType;
 import org.openhab.core.library.types.PointType;
@@ -69,9 +72,6 @@ import org.openhab.core.types.Command;
 import org.openhab.core.types.RefreshType;
 import org.openhab.core.types.State;
 import org.openhab.core.types.UnDefType;
-import org.openhab.binding.samsungdigitalinverter.SamsungDigitalInverterConstants;
-import org.openhab.binding.samsungdigitalinverter.internal.SamsungDigitalInverterConfiguration;
-import org.openhab.binding.samsungdigitalinverter.json.SamsungDigitalInverterJsonResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -117,7 +117,6 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
     public SamsungDigitalInverterHandler(Thing thing) {
         super(thing);
         gson = new Gson();
-
     }
 
     @Override
@@ -276,7 +275,6 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
         }
 
         return (pu);
-
     }
 
     @Override
@@ -358,7 +356,6 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
 
         int httpResult = con.getResponseCode();
         logger.debug("updateService {} with {} returned {}", sdiCommand.getPath(), sdiCommand.getJson(), httpResult);
-
     }
 
     /**
@@ -562,7 +559,6 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
         } };
 
         return (ret);
-
     }
 
     private KeyManager[] createKeyManagers(String keystoreFilePath, String keyStorePassword) throws KeyStoreException,
@@ -575,7 +571,6 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
         KeyManagerFactory kmfactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
         kmfactory.init(keyStore, keyStorePassword.toCharArray());
         return kmfactory.getKeyManagers();
-
     }
 
     private HostnameVerifier createrHostnameVerifier() {

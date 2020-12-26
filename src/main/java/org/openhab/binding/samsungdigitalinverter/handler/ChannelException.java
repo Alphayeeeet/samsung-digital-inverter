@@ -38,5 +38,4 @@ public class ChannelException extends Exception {
         super(message);
         // TODO Auto-generated constructor stub
     }
-
 }
