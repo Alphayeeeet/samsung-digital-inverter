@@ -4,6 +4,8 @@
         <feature>openhab-runtime-base</feature>
         <feature>wrap</feature>
         <bundle>mvn:org.openhab.addons.bundles/org.openhab.binding.samsungdigitalinverter/3.1.0-SNAPSHOT</bundle>
+        <bundle>mvn:org.xerial/sqlite-jdbc/3.16.1</bundle>
+        <bundle>mvn:org.xerial/sqlite-jdbc/3.16.1</bundle>
         <bundle>wrap:mvn:org.lastnpe.eea/eea-all/2.2.1</bundle>
     </feature>
 </features>
