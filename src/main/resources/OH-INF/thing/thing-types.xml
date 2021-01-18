@@ -155,7 +155,7 @@
 	</channel-type>
 
 	<channel-type id="running_time">
-		<item-type>Number:Time</item-type>
+		<item-type>Number</item-type>
 		<label>Hours Running</label>
 		<description>Total Hours running</description>
 		<state readOnly="true" pattern="%.1f %unit%"/>
@@ -169,14 +169,14 @@
 	</channel-type>
 
 	<channel-type id="filtertime">
-		<item-type>Number:Time</item-type>
+		<item-type>Number</item-type>
 		<label>Run time since last cleaning</label>
 		<description>Hours since filter was cleaned</description>
 		<state readOnly="true" pattern="%.1f %unit%"/>
 	</channel-type>
 
 	<channel-type id="filteralarmtime">
-		<item-type>Number:Time</item-type>
+		<item-type>Number</item-type>
 		<label>Interval Time for Filter Cleaning</label>
 		<description>Cleaning interval for filter</description>
 		<state readOnly="true" pattern="%.0f %unit%"/>
