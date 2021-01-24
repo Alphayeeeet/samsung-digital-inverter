@@ -16,6 +16,8 @@ package org.openhab.binding.samsungdigitalinverter.internal;
 import java.util.Collections;
 import java.util.Set;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.samsungdigitalinverter.SamsungDigitalInverterConstants;
 import org.openhab.binding.samsungdigitalinverter.handler.SamsungDigitalInverterHandler;
 import org.openhab.core.thing.Thing;
@@ -31,7 +33,7 @@ import org.osgi.service.component.annotations.Component;
  *
  * @author Jan Grønlien - Initial contribution
  */
-
+@NonNullByDefault
 @Component(service = ThingHandlerFactory.class, configurationPid = "binding.SamsungDigitalInverter")
 public class SamsungDigitalInverterHandlerFactory extends BaseThingHandlerFactory {
 
@@ -44,6 +46,7 @@ public class SamsungDigitalInverterHandlerFactory extends BaseThingHandlerFactor
         return SUPPORTED_THING_TYPES_UIDS.contains(thingTypeUID);
     }
 
+    @Nullable
     @Override
     protected ThingHandler createHandler(Thing thing) {
         ThingTypeUID thingTypeUID = thing.getThingTypeUID();

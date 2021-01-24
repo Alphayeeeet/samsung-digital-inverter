@@ -52,7 +52,6 @@ import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
-import org.apache.commons.lang.StringUtils;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.samsungdigitalinverter.SamsungDigitalInverterConstants;
 import org.openhab.binding.samsungdigitalinverter.internal.SamsungDigitalInverterConfiguration;
@@ -83,12 +82,11 @@ import com.google.gson.Gson;
  *
  * @author Jan Grønlien - Initial contribution
  */
-
 public class SamsungDigitalInverterHandler extends BaseThingHandler {
 
     private Logger logger = LoggerFactory.getLogger(SamsungDigitalInverterHandler.class);
 
-    private SamsungDigitalInverterConfiguration config;
+    private @Nullable SamsungDigitalInverterConfiguration config;
 
     private static final int DEFAULT_REFRESH_PERIOD = 60;
 
@@ -96,19 +94,19 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
 
     private ScheduledFuture<?> refreshJob;
 
-    private SamsungDigitalInverterJsonResponse sdiResponse;
+    private @Nullable SamsungDigitalInverterJsonResponse sdiResponse;
 
     private Gson gson;
 
-    private HostnameVerifier allHostsValid;
+    private @Nullable HostnameVerifier allHostsValid;
 
-    private KeyManager[] keyManagers;
+    private @Nullable KeyManager[] keyManagers;
 
-    private TrustManager[] trustManagers;
+    private @Nullable TrustManager[] trustManagers;
 
-    private SSLContext sslContext;
+    private @Nullable SSLContext sslContext;
 
-    private static final String powerUsageSQL = "select date, power_usage, running_time from power_usage_table where date >= (select max(date) from power_usage_table where date < (select max(date) from power_usage_table)) order by date;";
+    private static final String POWER_USAGE_SQL = "select date, power_usage, running_time from power_usage_table where date = (select max(date) from power_usage_table);";
 
     private long lastUpdateTimeMillis;
 
@@ -219,21 +217,11 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
                 logger.debug("Power Usage DB saved as {}", usageDB.getAbsolutePath());
 
                 conn = DriverManager.getConnection("jdbc:sqlite:" + usageDB.getAbsolutePath());
-                PreparedStatement ps = conn.prepareStatement(powerUsageSQL);
+                PreparedStatement ps = conn.prepareStatement(POWER_USAGE_SQL);
                 ResultSet rs = ps.executeQuery();
 
                 pu = new PowerUsage();
-                // Two rows are returned from the table, first row is the previous save of power and running time
-                if (rs.next()) {
-                    pu.setPreviousDate(rs.getString(1));
-                    String str = rs.getString(2);
-                    pu.setPreviousPowerUsage(str);
-                    str = rs.getString(3);
-                    pu.setPreviousRunningTime(str);
-                    logger.debug("date {}, power_usage {}, running_time {}", rs.getString(1), rs.getBigDecimal(2),
-                            rs.getBigDecimal(3));
-                }
-                // Second row contans the last saved data
+                // Row contans the last saved data
                 if (rs.next()) {
                     pu.setCurrentDate(rs.getString(1));
                     pu.setCurrentPowerUsage(rs.getString(2));
@@ -241,10 +229,7 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
                     logger.debug("date {}, power_usage {}, running_time {}", rs.getString(1), rs.getBigDecimal(2),
                             rs.getBigDecimal(3));
                 } else {
-                    pu.setPreviousDate(rs.getString(1));
-                    pu.setPreviousPowerUsage(rs.getBigDecimal(2));
-                    pu.setPreviousRunningTime(rs.getBigDecimal(3));
-                    logger.debug("{}", "single row detected in power usage table");
+                    logger.warn("{}", "No row's detected in power usage table");
                 }
                 rs.close();
                 ps.close();
@@ -473,7 +458,7 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
      * @throws Exception
      */
     public static Object getValue(String channelId, SamsungDigitalInverterJsonResponse data) throws Exception {
-        String[] fields = StringUtils.split(channelId, "#");
+        String[] fields = channelId.split("#");
         Object value;
 
         if (data != null) {

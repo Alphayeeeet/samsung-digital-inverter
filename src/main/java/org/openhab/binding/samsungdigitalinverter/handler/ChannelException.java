@@ -31,11 +31,9 @@ public class ChannelException extends Exception {
     private static final long serialVersionUID = 1L;
 
     public ChannelException() {
-        // TODO Auto-generated constructor stub
     }
 
     public ChannelException(String message) {
         super(message);
-        // TODO Auto-generated constructor stub
     }
 }

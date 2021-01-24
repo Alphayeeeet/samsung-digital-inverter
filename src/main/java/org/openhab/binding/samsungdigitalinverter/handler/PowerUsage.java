@@ -18,6 +18,8 @@ import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  *
  * The {@link PowerUsage} class handles the Power Usage
@@ -25,19 +27,15 @@ import java.time.format.DateTimeFormatter;
  * @author Jan Grønlien - Initial contribution
  */
 
+@NonNullByDefault
 public class PowerUsage {
-
-    LocalDateTime currentDate;
-    BigDecimal currentPowerUsage;
-    BigDecimal currentRunningTime;
-
-    LocalDateTime previousDate;
-    BigDecimal previousPowerUsage;
-    BigDecimal previousRunningTime;
+    LocalDateTime currentDate = LocalDateTime.now();
+    BigDecimal currentPowerUsage = new BigDecimal(0);
+    BigDecimal currentRunningTime = new BigDecimal(0);
 
     BigDecimal ten = new BigDecimal("10");
 
-    private static final DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyyMMddHH");
+    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyyMMddHH");
 
     /**
      * @return the date
@@ -51,7 +49,7 @@ public class PowerUsage {
      * @throws ParseException
      */
     public void setCurrentDate(String date) throws ParseException {
-        this.currentDate = LocalDateTime.parse(date, dateFormat);
+        this.currentDate = LocalDateTime.parse(date, DATE_FORMAT);
     }
 
     /**
@@ -98,69 +96,6 @@ public class PowerUsage {
 
     @Override
     public String toString() {
-        return (currentDate.toString() + " - " + previousDate.toString() + " : " + currentPowerUsage.toString() + " - "
-                + previousPowerUsage.toString() + " : " + currentRunningTime.toString() + " - "
-                + previousRunningTime.toString());
-    }
-
-    /**
-     * @return the previousDate
-     */
-    public LocalDateTime getPreviousDate() {
-        return previousDate;
-    }
-
-    /**
-     * @param date the previousDate to set
-     */
-    public void setPreviousDate(String date) {
-        this.previousDate = LocalDateTime.parse(date, dateFormat);
-        ;
-    }
-
-    /**
-     * @return the previousPowerUsage
-     */
-    public BigDecimal getPreviousPowerUsage() {
-        return previousPowerUsage;
-    }
-
-    /**
-     * @param previousPowerUsage the previousPowerUsage to set
-     */
-    public void setPreviousPowerUsage(BigDecimal previousPowerUsage) {
-        this.previousPowerUsage = previousPowerUsage.divide(ten); // KWh;
-    }
-
-    /**
-     * @param previousPowerUsage the previousPowerUsage to set
-     */
-    public void setPreviousPowerUsage(String previousPowerUsage) {
-        setPreviousPowerUsage(new BigDecimal(previousPowerUsage));
-    }
-
-    /**
-     * @return the previousRunningTime
-     */
-    public BigDecimal getPreviousRunningTime() {
-        return previousRunningTime;
-    }
-
-    /**
-     * @param previousRunningTime the previousRunningTime to set
-     */
-    public void setPreviousRunningTime(BigDecimal runningTime) {
-        this.previousRunningTime = runningTime.divide(ten);
-    }
-
-    /**
-     * @param previousRunningTime the previousRunningTime to set
-     */
-    public void setPreviousRunningTime(String runningTime) {
-        setPreviousRunningTime(new BigDecimal(runningTime));
-    }
-
-    public BigDecimal getDuration() {
-        return (currentRunningTime.subtract(previousRunningTime));
+        return (currentDate.toString() + " - " + currentPowerUsage.toString() + " - " + currentRunningTime.toString());
     }
 }

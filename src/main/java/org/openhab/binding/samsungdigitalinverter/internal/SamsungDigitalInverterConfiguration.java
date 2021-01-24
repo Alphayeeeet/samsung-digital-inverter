@@ -13,29 +13,31 @@
 
 package org.openhab.binding.samsungdigitalinverter.internal;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  *
  * The {@link SamsungDigitalInverterConfiguration} class is the configuration class for the Samsung Digital Inverter
  *
  * @author Jan Grønlien - Initial contribution
  */
-
+@NonNullByDefault
 public class SamsungDigitalInverterConfiguration {
     // Access token used as key to control Device
-    public String bearer;
+    public String bearer = "";
 
     // IP address of Device
-    public String ip;
+    public String ip = "";
 
     // Port number for device, default 8888
-    public Integer port;
+    public Integer port = 8888;
 
     // Refresh interval in seconds
-    public Integer refresh;
+    public Integer refresh = 900;
 
     // keystore
-    public String keystore;
+    public String keystore = "";
 
     // keystore password
-    public String keystore_secret;
+    public String keystore_secret = "";
 }
