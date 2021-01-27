@@ -88,7 +88,7 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
 
     private @Nullable SamsungDigitalInverterConfiguration config;
 
-    private static final int DEFAULT_REFRESH_PERIOD = 60;
+    private static final int DEFAULT_REFRESH_PERIOD = 300;
 
     private static final long POWER_USAGE_REFRESH = 30 * 60 * 1000;
 
@@ -330,7 +330,7 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
     private void updateService(JsonCommand sdiCommand) throws IOException {
         URL url = createURL(sdiCommand.getPath());
 
-        logger.debug("URL = {}", url);
+        logger.debug("updateService URL = {}", url);
 
         HttpsURLConnection con = openConnection(url);
         con.setRequestMethod("PUT");
@@ -403,12 +403,12 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
 
         try {
             URL url = createURL(SamsungDigitalInverterConstants.DEVICES);
-            logger.debug("URL = {}", url);
+            logger.debug("getSamsungDigitalInverterData URL = {}", url);
 
             URLConnection con = openConnection(url);
 
             String response = convertStreamToString(con.getInputStream());
-            logger.debug("Response: {}", response);
+            logger.debug("getSamsungDigitalInverterData Response: {}", response);
 
             // Map the JSON response to an object
             result = gson.fromJson(response, SamsungDigitalInverterJsonResponse.class);
@@ -417,13 +417,13 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
                 updateStatus(ThingStatus.ONLINE, ThingStatusDetail.NONE, null);
             } else {
                 errorMsg = "missing data sub-object";
-                logger.warn("Invalid response: {}", errorMsg);
+                logger.warn("getSamsungDigitalInverterData Invalid response: {}", errorMsg);
             }
 
             // Download usage.db
             // usageDB = getUsageDB();
         } catch (Exception e) {
-            logger.error("{}", e.getMessage());
+            logger.error("getSamsungDigitalInverterData {}", e.getMessage());
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, e.getMessage());
         }
         return (result);
