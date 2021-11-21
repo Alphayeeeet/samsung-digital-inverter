@@ -1,3 +1,4 @@
 target
 *.log
 *.ORG
+.DS_Store
