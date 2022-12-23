@@ -24,8 +24,6 @@
 			<channel id="windspeed" typeId="windspeed"/>
 			<channel id="operation_mode" typeId="operation_mode"/>
 			<channel id="comode" typeId="comode"/>
-			<channel id="running_time" typeId="running_time"/>
-			<channel id="power_usage" typeId="power_usage"></channel>
 			<channel id="filtertime" typeId="filtertime"/>
 			<channel id="filteralarmtime" typeId="filteralarmtime"/>
 			<channel id="alarm" typeId="alarm"/>
@@ -70,7 +68,7 @@
 		<tags>
 			<tag>TargetTemperature</tag>
 		</tags>
-		<state pattern="%.0f %unit%" min="8.0" max="30.0" step="1.0" readOnly="false"></state>
+		<state pattern="%.0f" min="8.0" max="30.0" step="1.0" readOnly="false"></state>
 	</channel-type>
 
 	<channel-type id="temperature">
@@ -152,20 +150,6 @@
 				<option value="Comode_25step">25step</option>
 			</options>
 		</state>
-	</channel-type>
-
-	<channel-type id="running_time">
-		<item-type>Number</item-type>
-		<label>Hours Running</label>
-		<description>Total Hours running</description>
-		<state readOnly="true" pattern="%.1f %unit%"/>
-	</channel-type>
-
-	<channel-type id="power_usage">
-		<item-type>Number:Power</item-type>
-		<label>Total Power Consumption</label>
-		<description>Power Consumption Accumulated since reset</description>
-		<state readOnly="true" pattern="%.1f KWh"/>
 	</channel-type>
 
 	<channel-type id="filtertime">

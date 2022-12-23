@@ -14,10 +14,7 @@
 package org.openhab.binding.samsungdigitalinverter.handler;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -32,14 +29,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.text.ParseException;
 import java.time.ZonedDateTime;
-import java.util.Base64;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -52,6 +42,7 @@ import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.samsungdigitalinverter.SamsungDigitalInverterConstants;
 import org.openhab.binding.samsungdigitalinverter.internal.SamsungDigitalInverterConfiguration;
@@ -90,8 +81,6 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
 
     private static final int DEFAULT_REFRESH_PERIOD = 300;
 
-    private static final long POWER_USAGE_REFRESH = 30 * 60 * 1000;
-
     private ScheduledFuture<?> refreshJob;
 
     private @Nullable SamsungDigitalInverterJsonResponse sdiResponse;
@@ -106,15 +95,30 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
 
     private @Nullable SSLContext sslContext;
 
-    private static final String POWER_USAGE_SQL = "select date, power_usage, running_time from power_usage_table where date = (select max(date) from power_usage_table);";
-
-    private long lastUpdateTimeMillis;
-
-    private @Nullable PowerUsage currentPowerUsage;
+    private int errorCounter = 0;
 
     public SamsungDigitalInverterHandler(Thing thing) {
         super(thing);
         gson = new Gson();
+    }
+
+    @Override
+    protected void updateStatus(@NonNull ThingStatus status) {
+        logger.info("updateStatus: {}", status);
+        super.updateStatus(status);
+    }
+
+    @Override
+    protected void updateStatus(@NonNull ThingStatus status, @NonNull ThingStatusDetail statusDetail) {
+        logger.info("updateStatus: {} {}", status, statusDetail);
+        super.updateStatus(status, statusDetail);
+    }
+
+    @Override
+    protected void updateStatus(@NonNull ThingStatus status, @NonNull ThingStatusDetail statusDetail,
+            @Nullable String description) {
+        logger.info("updateStatus: {} {} {}", status, statusDetail, statusDetail);
+        super.updateStatus(status, statusDetail, description);
     }
 
     @Override
@@ -128,7 +132,6 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
         logger.debug("config refresh = {}", config.refresh);
         logger.debug("config keystore = {}", config.keystore);
         logger.debug("config keystore secret = (omitted from logging)");
-        lastUpdateTimeMillis = 0L;
 
         String errorMsg = null;
 
@@ -143,8 +146,6 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
             HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
             HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
 
-            Class.forName("org.sqlite.JDBC");
-
         } catch (Exception e) {
             errorMsg = e.getMessage();
         }
@@ -153,7 +154,7 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
             updateStatus(ThingStatus.ONLINE);
             startAutomaticRefresh();
         } else {
-            logger.error("{}", errorMsg);
+            logger.error("samsungdigitalinverter.handler.initialize: {}", errorMsg);
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, errorMsg);
         }
     }
@@ -170,18 +171,6 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
                     if (this.getThing().getStatus() == ThingStatus.ONLINE) {
                         sdiResponse = getSamsungDigitalInverterData();
                         if (sdiResponse != null) {
-
-                            // downloading power usage database is very consuming for the Digital Inverter, so the
-                            // usage.db
-                            // are
-                            // downloaded twice per hour.
-                            if ((System.currentTimeMillis() - lastUpdateTimeMillis) > POWER_USAGE_REFRESH) {
-                                logger.debug("Updating power usage, last update was on {}", lastUpdateTimeMillis);
-                                lastUpdateTimeMillis = System.currentTimeMillis();
-                                currentPowerUsage = getPowerUsage();
-                            }
-
-                            sdiResponse.setPowerUsage(currentPowerUsage);
                             // Update all channels
                             for (Channel channel : getThing().getChannels()) {
                                 updateChannel(channel.getUID().getId(), sdiResponse);
@@ -199,67 +188,6 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
             int delay = (config.refresh != null) ? config.refresh.intValue() : DEFAULT_REFRESH_PERIOD;
             refreshJob = scheduler.scheduleWithFixedDelay(runnable, 0, delay, TimeUnit.SECONDS);
         }
-    }
-
-    private PowerUsage getPowerUsage() {
-        PowerUsage pu = null;
-        byte[] db = getUsageDB();
-
-        File usageDB = null;
-        Connection conn = null;
-        if (db != null) {
-            try {
-                usageDB = File.createTempFile("sdi", "db");
-                usageDB.deleteOnExit();
-                FileOutputStream os = new FileOutputStream(usageDB);
-                os.write(db);
-                os.close();
-                logger.debug("Power Usage DB saved as {}", usageDB.getAbsolutePath());
-
-                conn = DriverManager.getConnection("jdbc:sqlite:" + usageDB.getAbsolutePath());
-                PreparedStatement ps = conn.prepareStatement(POWER_USAGE_SQL);
-                ResultSet rs = ps.executeQuery();
-
-                pu = new PowerUsage();
-                // Row contans the last saved data
-                if (rs.next()) {
-                    pu.setCurrentDate(rs.getString(1));
-                    pu.setCurrentPowerUsage(rs.getString(2));
-                    pu.setCurrentRunningTime(rs.getString(3));
-                    logger.debug("date {}, power_usage {}, running_time {}", rs.getString(1), rs.getBigDecimal(2),
-                            rs.getBigDecimal(3));
-                } else {
-                    logger.warn("{}", "No row's detected in power usage table");
-                }
-                rs.close();
-                ps.close();
-
-            } catch (FileNotFoundException e) {
-                logger.error("{}", e.getMessage());
-            } catch (IOException e) {
-                logger.error("{}", e.getMessage());
-            } catch (SQLException e) {
-                logger.error("{}", e.getMessage());
-            } catch (ParseException e) {
-                logger.error("{}", e.getMessage());
-            } finally
-
-            {
-                if (conn != null) {
-                    try {
-                        conn.close();
-                    } catch (SQLException e) {
-                    }
-                }
-                if (usageDB != null) {
-                    usageDB.delete();
-                }
-            }
-        } else {
-            logger.warn("{}", "No Power Usage DB to download");
-        }
-
-        return (pu);
     }
 
     @Override
@@ -317,7 +245,7 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
                     logger.debug("To execute command: {} {}", sdiCommand.getPath(), sdiCommand.getJson());
                     updateService(sdiCommand);
                 } catch (IOException e) {
-                    logger.error("{}", e.getMessage());
+                    logger.error("handleCommand: {}", e.getMessage());
                 }
             }
         }
@@ -422,30 +350,17 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
 
             // Download usage.db
             // usageDB = getUsageDB();
+            errorCounter = 0;
         } catch (Exception e) {
             logger.error("getSamsungDigitalInverterData {}", e.getMessage());
-            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, e.getMessage());
+            if (++errorCounter > 9) {
+                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, e.getMessage());
+                errorCounter = 0;
+            }
+
+            // updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, e.getMessage());
         }
         return (result);
-    }
-
-    private byte[] getUsageDB() {
-        byte[] ret = null;
-
-        try {
-            URL url = createURL(SamsungDigitalInverterConstants.USAGE_DB);
-            logger.debug("URL = {}", url);
-            URLConnection con = openConnection(url);
-
-            String response = convertStreamToString(con.getInputStream());
-            ret = Base64.getDecoder().decode(response);
-        } catch (MalformedURLException e) {
-            logger.error("{}", e.getMessage());
-        } catch (IOException e) {
-            logger.error("{}", e.getMessage());
-        }
-
-        return (ret);
     }
 
     /**
@@ -515,10 +430,6 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
                     return "FilterCleanAlarm_0".equals(data.getDevices().get(0).getMode().getOptions().get(3))
                             ? SamsungDigitalInverterConstants.OFF
                             : SamsungDigitalInverterConstants.ON;
-                case SamsungDigitalInverterConstants.POWER_USAGE:
-                    return data.getPowerUsage().getCurrentPowerUsage();
-                case SamsungDigitalInverterConstants.RUNNING_TIME:
-                    return data.getPowerUsage().getCurrentRunningTime();
             }
         } else {
             throw new ChannelException("data can't be null for channelID=" + channelId);
