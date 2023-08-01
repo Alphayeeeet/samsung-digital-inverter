@@ -6,7 +6,7 @@
           "openhab_runtime": "/Users/jan/oh3/runtime",
           "openhab_addons": "/Users/jan/oh3/addons",
           "openhab_logs": "/Users/jan/oh3/logs",
-          "dist" : "org.openhab.binding.samsungdigitalinverter-3.3.0.jar"
+          "dist" : "org.openhab.binding.samsungdigitalinverter-4.0.1.jar"
       }
   },
   "tasks": [
