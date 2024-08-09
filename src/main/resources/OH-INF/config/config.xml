@@ -23,7 +23,7 @@
 			<description>Fill in port number (8888)</description>
 			<default>8888</default>
 		</parameter>
-		<parameter name="refresh" type="integer" min="300" required="false">
+		<parameter name="refresh" type="integer" min="3" required="false">
 			<label>Refresh interval</label>
 			<description>Specifies the refresh interval in seconds.</description>
 			<default>300</default>

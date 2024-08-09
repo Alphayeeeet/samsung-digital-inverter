@@ -31,6 +31,8 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.time.ZonedDateTime;
 import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.HostnameVerifier;
@@ -38,7 +40,6 @@ import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
@@ -96,6 +97,8 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
     private @Nullable SSLContext sslContext;
 
     private int errorCounter = 0;
+    private ScheduledFuture<?> statusResetJob;
+    private int configuredDelay = DEFAULT_REFRESH_PERIOD;
 
     public SamsungDigitalInverterHandler(Thing thing) {
         super(thing);
@@ -103,27 +106,33 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
     }
 
     @Override
-    protected void updateStatus(@NonNull ThingStatus status) {
-        logger.info("updateStatus: {}", status);
-        super.updateStatus(status);
-    }
-
-    @Override
-    protected void updateStatus(@NonNull ThingStatus status, @NonNull ThingStatusDetail statusDetail) {
-        logger.info("updateStatus: {} {}", status, statusDetail);
-        super.updateStatus(status, statusDetail);
-    }
-
-    @Override
     protected void updateStatus(@NonNull ThingStatus status, @NonNull ThingStatusDetail statusDetail,
             @Nullable String description) {
-        logger.info("updateStatus: {} {} {}", status, statusDetail, statusDetail);
+
+        if(status == ThingStatus.ONLINE && statusDetail == ThingStatusDetail.NONE && description.equals("Repeating status update")) {
+            if(statusResetJob == null || !statusResetJob.isCancelled()) {
+                boolean firstRun = false;
+                if(statusResetJob != null) {
+                    statusResetJob.cancel(true);
+                } else firstRun = true;
+
+                statusResetJob = scheduler.schedule(() -> this.updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR), this.configuredDelay + 60, TimeUnit.SECONDS);
+                if(firstRun) description = "Initialization successful";
+                else {
+                    logger.debug("updateStatus: {} {} {}", status, statusDetail, description);
+                    return;
+                }
+            }
+        }
+
+        logger.info("updateStatus: {} {} {}", status, statusDetail, description);
+
         super.updateStatus(status, statusDetail, description);
     }
 
     @Override
     public void initialize() {
-        logger.debug("Initializing Samsung Digital Inverter handler.");
+        logger.info("Initializing the Samsung Digital Inverter handler");
 
         config = getConfigAs(SamsungDigitalInverterConfiguration.class);
         logger.debug("{}", "config bearer = (omitted from logging)");
@@ -151,10 +160,10 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
         }
 
         if (errorMsg == null) {
-            updateStatus(ThingStatus.ONLINE);
+            this.updateStatus(ThingStatus.ONLINE, ThingStatusDetail.CONFIGURATION_PENDING);
             startAutomaticRefresh();
         } else {
-            logger.error("samsungdigitalinverter.handler.initialize: {}", errorMsg);
+            logger.error("initialize: {}", errorMsg);
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, errorMsg);
         }
     }
@@ -175,8 +184,9 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
                             for (Channel channel : getThing().getChannels()) {
                                 updateChannel(channel.getUID().getId(), sdiResponse);
                             }
+                            this.updateStatus(ThingStatus.ONLINE, ThingStatusDetail.NONE, "Repeating status update");
                         } else {
-                            logger.warn("{}", "getSamsungDigitalInverterData() returned null ");
+                            logger.warn("getSamsungDigitalInverterData() returned null");
                         }
                     }
                 } catch (Exception e) {
@@ -185,18 +195,23 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
             };
 
             SamsungDigitalInverterConfiguration config = getConfigAs(SamsungDigitalInverterConfiguration.class);
-            int delay = (config.refresh != null) ? config.refresh.intValue() : DEFAULT_REFRESH_PERIOD;
-            refreshJob = scheduler.scheduleWithFixedDelay(runnable, 0, delay, TimeUnit.SECONDS);
+            this.configuredDelay =  (config.refresh != null) ? config.refresh.intValue() : DEFAULT_REFRESH_PERIOD;
+            refreshJob = scheduler.scheduleWithFixedDelay(runnable, 0, this.configuredDelay, TimeUnit.SECONDS);
         }
     }
 
     @Override
     public void dispose() {
-        logger.debug("Disposing the Samsung Digital Inverter handler.");
+        logger.info("Disposing the Samsung Digital Inverter handler");
 
         if (refreshJob != null && !refreshJob.isCancelled()) {
             refreshJob.cancel(true);
             refreshJob = null;
+        }
+
+        if(statusResetJob != null && !statusResetJob.isCancelled()) {
+            statusResetJob.cancel(true);
+            statusResetJob = null;
         }
     }
 
@@ -341,11 +356,9 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
             // Map the JSON response to an object
             result = gson.fromJson(response, SamsungDigitalInverterJsonResponse.class);
 
-            if (result.getDevices() != null) {
-                updateStatus(ThingStatus.ONLINE, ThingStatusDetail.NONE, null);
-            } else {
-                errorMsg = "missing data sub-object";
-                logger.warn("getSamsungDigitalInverterData Invalid response: {}", errorMsg);
+            if (result.getDevices() == null) {
+                errorMsg = "Invalid response: missing data sub-object";
+                throw new IllegalStateException(errorMsg);
             }
 
             // Download usage.db
@@ -354,7 +367,7 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
         } catch (Exception e) {
             logger.error("getSamsungDigitalInverterData {}", e.getMessage());
             if (++errorCounter > 9) {
-                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, e.getMessage());
+                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, e.getMessage());
                 errorCounter = 0;
             }
 
@@ -470,12 +483,7 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
     }
 
     private HostnameVerifier createrHostnameVerifier() {
-        return (new HostnameVerifier() {
-            @Override
-            public boolean verify(String hostname, SSLSession session) {
-                return true;
-            }
-        });
+        return ((hostname, session) -> true);
     }
 
     private URL createURL(String path) throws MalformedURLException {
