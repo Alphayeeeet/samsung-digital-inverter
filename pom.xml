@@ -27,7 +27,6 @@
       <plugin>
         <groupId>org.commonjava.maven.plugins</groupId>
         <artifactId>directory-maven-plugin</artifactId>
-        <version>1.0</version>
         <executions>
           <execution>
             <id>directories</id>
@@ -41,26 +40,6 @@
           </execution>
         </executions>
       </plugin>
-      <!-- <plugin> -->
-      <!-- <groupId>com.diffplug.spotless</groupId> -->
-      <!-- <artifactId>spotless-maven-plugin</artifactId> -->
-      <!-- <executions> -->
-      <!-- <execution> -->
-      <!-- <id>codestyle_check</id> -->
-      <!-- <phase>none</phase> -->
-      <!-- </execution> -->
-      <!-- </executions> -->
-      <!-- </plugin> -->
-      <!-- <plugin> -->
-      <!-- <groupId>org.openhab.tools.sat</groupId> -->
-      <!-- <artifactId>sat-plugin</artifactId> -->
-      <!-- <executions> -->
-      <!-- <execution> -->
-      <!-- <id>sat-all</id> -->
-      <!-- <phase>none</phase> -->
-      <!-- </execution> -->
-      <!-- </executions> -->
-      <!-- </plugin> -->
     </plugins>
   </build>
 </project>
