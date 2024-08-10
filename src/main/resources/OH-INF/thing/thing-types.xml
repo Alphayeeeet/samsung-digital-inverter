@@ -17,6 +17,7 @@
 			<channel id="power" typeId="power"/>
 			<channel id="autoclean" typeId="autoclean"/>
 			<channel id="beep" typeId="beep"/>
+			<channel id="reset_filter_clean_alarm" typeId="reset_filter_clean_alarm"/>
 			<channel id="setpoint_temperature" typeId="setpoint_temperature"/>
 			<channel id="temperature" typeId="temperature"/>
 			<channel id="outdoor_temperature" typeId="outdoor_temperature"/>
@@ -68,7 +69,7 @@
 		<tags>
 			<tag>TargetTemperature</tag>
 		</tags>
-		<state pattern="%.0f" min="8.0" max="30.0" step="1.0" readOnly="false"></state>
+		<state pattern="%.0f" min="16.0" max="30.0" step="1.0" readOnly="false"></state>
 	</channel-type>
 
 	<channel-type id="temperature">
@@ -147,7 +148,8 @@
 				<option value="Comode_Sleep">Sleep</option>
 				<option value="Comode_Comfort">Comfort</option>
 				<option value="Comode_Smart">Smart</option>
-				<option value="Comode_25step">25step</option>
+				<option value="Comode_2Step">2Step</option>
+				<option value="Comode_Speed">Speed</option>
 			</options>
 		</state>
 	</channel-type>

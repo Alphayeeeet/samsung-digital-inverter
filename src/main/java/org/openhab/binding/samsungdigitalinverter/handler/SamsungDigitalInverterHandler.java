@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -32,7 +33,6 @@ import java.security.cert.X509Certificate;
 import java.time.ZonedDateTime;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.HostnameVerifier;
@@ -109,15 +109,38 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
     protected void updateStatus(@NonNull ThingStatus status, @NonNull ThingStatusDetail statusDetail,
             @Nullable String description) {
 
-        if(status == ThingStatus.ONLINE && statusDetail == ThingStatusDetail.NONE && description.equals("Repeating status update")) {
-            if(statusResetJob == null || !statusResetJob.isCancelled()) {
+        if (status == ThingStatus.ONLINE && statusDetail == ThingStatusDetail.NONE
+                && description.equals("Repeating status update")) {
+            if (statusResetJob == null || !statusResetJob.isCancelled()) {
                 boolean firstRun = false;
-                if(statusResetJob != null) {
+                if (statusResetJob != null) {
                     statusResetJob.cancel(true);
-                } else firstRun = true;
+                } else
+                    firstRun = true;
 
-                statusResetJob = scheduler.schedule(() -> this.updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR), this.configuredDelay + 60, TimeUnit.SECONDS);
-                if(firstRun) description = "Initialization successful";
+                statusResetJob = scheduler.schedule(() -> {
+                    this.updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR);
+                    try {
+                        Class superclass = this.scheduler.getClass().getSuperclass();
+                        Method method = superclass.getDeclaredMethod("getDelegate");
+                        method.setAccessible(true);
+
+                        ScheduledThreadPoolExecutor schedulerCasted = null;
+
+                        schedulerCasted = (ScheduledThreadPoolExecutor) method.invoke(this.scheduler);
+
+                        this.logger.debug(
+                                "scheduler: {} isShut: {} isTerm: {} Pool size: {} (max allowed: {}, core: {}, max been: {}) Queue size: {}",
+                                schedulerCasted, schedulerCasted.isShutdown(), schedulerCasted.isTerminated(),
+                                schedulerCasted.getPoolSize(), schedulerCasted.getMaximumPoolSize(),
+                                schedulerCasted.getCorePoolSize(), schedulerCasted.getLargestPoolSize(),
+                                schedulerCasted.getQueue().size());
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                }, this.configuredDelay + 60, TimeUnit.SECONDS);
+                if (firstRun)
+                    description = "Initialization successful";
                 else {
                     logger.debug("updateStatus: {} {} {}", status, statusDetail, description);
                     return;
@@ -195,7 +218,7 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
             };
 
             SamsungDigitalInverterConfiguration config = getConfigAs(SamsungDigitalInverterConfiguration.class);
-            this.configuredDelay =  (config.refresh != null) ? config.refresh.intValue() : DEFAULT_REFRESH_PERIOD;
+            this.configuredDelay = (config.refresh != null) ? config.refresh.intValue() : DEFAULT_REFRESH_PERIOD;
             refreshJob = scheduler.scheduleWithFixedDelay(runnable, 0, this.configuredDelay, TimeUnit.SECONDS);
         }
     }
@@ -209,7 +232,7 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
             refreshJob = null;
         }
 
-        if(statusResetJob != null && !statusResetJob.isCancelled()) {
+        if (statusResetJob != null && !statusResetJob.isCancelled()) {
             statusResetJob.cancel(true);
             statusResetJob = null;
         }
@@ -324,7 +347,7 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
                 logger.warn("Update channel {}: Unsupported value type {}", channelId,
                         value.getClass().getSimpleName());
             }
-            logger.debug("Update channel {} with state {} ({})", channelId, (state == null) ? "null" : state.toString(),
+            logger.trace("Update channel {} with state {} ({})", channelId, (state == null) ? "null" : state.toString(),
                     (value == null) ? "null" : value.getClass().getSimpleName());
 
             // Update the channel
