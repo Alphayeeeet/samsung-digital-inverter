@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2023 Contributors to the openHAB project
+ * Copyright (c) 2010-2024 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information.
@@ -73,6 +73,7 @@ import com.google.gson.Gson;
  * The {@link SamsungDigitalInverterHandler} class is the core class for the Samsung Digital Inverter
  *
  * @author Jan Grønlien - Initial contribution
+ * @author Kai Feistenauer - improvements
  */
 public class SamsungDigitalInverterHandler extends BaseThingHandler {
 
@@ -110,7 +111,7 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
             @Nullable String description) {
 
         if (status == ThingStatus.ONLINE && statusDetail == ThingStatusDetail.NONE
-                && description.equals("Repeating status update")) {
+                && "Repeating status update".equals(description)) {
             if (statusResetJob == null || !statusResetJob.isCancelled()) {
                 boolean firstRun = false;
                 if (statusResetJob != null) {
