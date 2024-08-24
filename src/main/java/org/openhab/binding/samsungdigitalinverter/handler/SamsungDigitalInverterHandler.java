@@ -34,6 +34,8 @@ import java.time.ZonedDateTime;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
@@ -85,7 +87,7 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
 
     private ScheduledFuture<?> refreshJob;
 
-    private @Nullable SamsungDigitalInverterJsonResponse sdiResponse;
+    private AtomicReference<SamsungDigitalInverterJsonResponse> sdiResponse = new AtomicReference<>();
 
     private Gson gson;
 
@@ -97,7 +99,7 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
 
     private @Nullable SSLContext sslContext;
 
-    private int errorCounter = 0;
+    private AtomicInteger errorCounter = new AtomicInteger(0);
     private ScheduledFuture<?> statusResetJob;
     private int configuredDelay = DEFAULT_REFRESH_PERIOD;
 
@@ -147,6 +149,10 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
                     return;
                 }
             }
+        } else if (status == ThingStatus.OFFLINE && statusDetail == ThingStatusDetail.COMMUNICATION_ERROR) {
+            this.dispose();
+            this.scheduler.schedule(() -> this.initialize(), 30, TimeUnit.SECONDS);
+            description = "Communication to thing failed, reinitializing";
         }
 
         logger.info("updateStatus: {} {} {}", status, statusDetail, description);
@@ -200,18 +206,18 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
             Runnable runnable = () -> {
                 try {
                     logger.debug("Starting Refresh");
-                    // Call Samsung Digital Inverter to get data
-                    if (this.getThing().getStatus() == ThingStatus.ONLINE) {
-                        sdiResponse = getSamsungDigitalInverterData();
-                        if (sdiResponse != null) {
-                            // Update all channels
-                            for (Channel channel : getThing().getChannels()) {
-                                updateChannel(channel.getUID().getId(), sdiResponse);
-                            }
-                            this.updateStatus(ThingStatus.ONLINE, ThingStatusDetail.NONE, "Repeating status update");
-                        } else {
-                            logger.warn("getSamsungDigitalInverterData() returned null");
+
+                    SamsungDigitalInverterJsonResponse sdiResponse = getSamsungDigitalInverterData();
+                    if (sdiResponse != null) {
+                        this.sdiResponse.set(sdiResponse);
+                        // Update all channels
+                        for (Channel channel : getThing().getChannels()) {
+                            updateChannel(channel.getUID().getId(), sdiResponse);
                         }
+
+                        this.updateStatus(ThingStatus.ONLINE, ThingStatusDetail.NONE, "Repeating status update");
+                    } else {
+                        logger.warn("getSamsungDigitalInverterData() returned null");
                     }
                 } catch (Exception e) {
                     logger.error("Exception occurred during execution: {}", e.getMessage(), e);
@@ -220,7 +226,7 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
 
             SamsungDigitalInverterConfiguration config = getConfigAs(SamsungDigitalInverterConfiguration.class);
             this.configuredDelay = (config.refresh != null) ? config.refresh.intValue() : DEFAULT_REFRESH_PERIOD;
-            refreshJob = scheduler.scheduleWithFixedDelay(runnable, 0, this.configuredDelay, TimeUnit.SECONDS);
+            refreshJob = this.scheduler.scheduleWithFixedDelay(runnable, 0, this.configuredDelay, TimeUnit.SECONDS);
         }
     }
 
@@ -242,7 +248,7 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
     @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
         if (command instanceof RefreshType) {
-            updateChannel(channelUID.getId(), sdiResponse);
+            updateChannel(channelUID.getId(), this.sdiResponse.get());
         } else {
             String channel = channelUID.getId();
             JsonCommand sdiCommand = null;
@@ -283,8 +289,14 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
                 try {
                     logger.debug("To execute command: {} {}", sdiCommand.getPath(), sdiCommand.getJson());
                     updateService(sdiCommand);
-                } catch (IOException e) {
+                    errorCounter.set(0);
+                } catch (Exception e) {
                     logger.error("handleCommand: {}", e.getMessage());
+
+                    if (errorCounter.incrementAndGet() > 9) {
+                        updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, e.getMessage());
+                        errorCounter.set(0);
+                    }
                 }
             }
         }
@@ -317,7 +329,7 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
      * @param channelId channel to update
      * @param sdiResponse Class representing the json response from the Samsung Digital Inverter
      */
-    private void updateChannel(String channelId, SamsungDigitalInverterJsonResponse sdiResponse) {
+    private synchronized void updateChannel(String channelId, SamsungDigitalInverterJsonResponse sdiResponse) {
         if (isLinked(channelId)) {
             Object value;
             try {
@@ -387,12 +399,12 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
 
             // Download usage.db
             // usageDB = getUsageDB();
-            errorCounter = 0;
+            errorCounter.set(0);
         } catch (Exception e) {
             logger.error("getSamsungDigitalInverterData {}", e.getMessage());
-            if (++errorCounter > 9) {
+            if (errorCounter.incrementAndGet() > 9) {
                 updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, e.getMessage());
-                errorCounter = 0;
+                errorCounter.set(0);
             }
 
             // updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, e.getMessage());
@@ -518,6 +530,8 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
         HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
         con.addRequestProperty("Content-Type", "application/json");
         con.addRequestProperty("Authorization", "Bearer " + config.bearer);
+        con.setReadTimeout(30 * 1000); // Set read timeout to prevent blocking forever
+        con.setConnectTimeout(15 * 1000);
         return (con);
     }
 
