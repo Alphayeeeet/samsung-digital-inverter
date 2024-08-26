@@ -151,7 +151,8 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
             }
         } else if (status == ThingStatus.OFFLINE && statusDetail == ThingStatusDetail.COMMUNICATION_ERROR) {
             this.dispose();
-            this.scheduler.schedule(() -> this.initialize(), 30, TimeUnit.SECONDS);
+            this.updateConfiguration(this.getConfig());
+            this.initialize();
             description = "Communication to thing failed, reinitializing";
         }
 
@@ -240,7 +241,7 @@ public class SamsungDigitalInverterHandler extends BaseThingHandler {
         }
 
         if (statusResetJob != null && !statusResetJob.isCancelled()) {
-            statusResetJob.cancel(true);
+            statusResetJob.cancel(false);
             statusResetJob = null;
         }
     }
