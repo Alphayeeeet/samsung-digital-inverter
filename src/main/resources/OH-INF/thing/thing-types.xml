@@ -67,7 +67,7 @@
 		<description>Set Desired Temperature</description>
 		<category>Heating</category>
 		<tags>
-			<tag>TargetTemperature</tag>
+			<tag>Temperature</tag>
 		</tags>
 		<state pattern="%.0f" min="16.0" max="30.0" step="1.0" readOnly="false"></state>
 	</channel-type>
@@ -78,7 +78,7 @@
 		<description>Current Temperature measured by the device</description>
 		<category>Temperature</category>
 		<tags>
-			<tag>CurrentTemperature</tag>
+			<tag>Temperature</tag>
 		</tags>
 		<state readOnly="true" pattern="%.0f %unit%"/>
 	</channel-type>
@@ -89,7 +89,7 @@
 		<description>Outdoor Temperature</description>
 		<category>Temperature</category>
 		<tags>
-			<tag>CurrentTemperature</tag>
+			<tag>Temperature</tag>
 		</tags>
 		<state readOnly="true" pattern="%.0f %unit%"/>
 	</channel-type>
