@@ -26,6 +26,7 @@ nbactions.xml
 *.ipr
 *.iws
 .idea/
+.agentbridge/
 out/
 
 # vim
